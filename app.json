@@ -1,8 +1,10 @@
 {
   "expo": {
+    "scheme": "com.tekjins.healthtek",
     "name": "app-ui",
     "slug": "app-ui",
     "version": "1.0.0",
+    "newArchEnabled": true,
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
