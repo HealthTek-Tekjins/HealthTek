@@ -1,30 +1,31 @@
-import { View, Text, TouchableOpacity, Image, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
-import { themeColors } from '../theme';
 import { useNavigation } from '@react-navigation/native';
 import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import * as Google from 'expo-auth-session/providers/google'; // For Google SSO
-import * as WebBrowser from 'expo-web-browser'; // Required for Google SSO
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 
 // Ensure WebBrowser is initialized
 WebBrowser.maybeCompleteAuthSession();
 
 export default function SignUpScreen() {
   const navigation = useNavigation();
-  const [fullName, setFullName] = useState('');
+  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ fullName: '', email: '', password: '' }); // UI error messages
+  const [errors, setErrors] = useState({ name: '', surname: '', phoneNumber: '', email: '', password: '' });
 
   // Google SSO configuration
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: '827006064376-v2jouoes34eiho63jcch9r7mo7u9p63l.apps.googleusercontent.com', // Replace with your Web Client ID from Firebase Console
-    iosClientId: 'YOUR_IOS_GOOGLE_CLIENT_ID', // Replace with your iOS Client ID (if applicable)
-    androidClientId: 'YOUR_ANDROID_GOOGLE_CLIENT_ID', // Replace with your Android Client ID (if applicable)
+    clientId: '827006064376-v2jouoes34eiho63jcch9r7mo7u9p63l.apps.googleusercontent.com',
+    iosClientId: 'YOUR_IOS_GOOGLE_CLIENT_ID',
+    androidClientId: 'YOUR_ANDROID_GOOGLE_CLIENT_ID',
   });
 
   // Handle Google SSO response
@@ -44,6 +45,11 @@ export default function SignUpScreen() {
     return emailRegex.test(email);
   };
 
+  const validatePhoneNumber = (phoneNumber) => {
+    const phoneRegex = /^\d{10}$/;
+    return phoneRegex.test(phoneNumber);
+  };
+
   const validatePassword = (password) => {
     const minLength = password.length >= 8;
     const hasUpperCase = /[A-Z]/.test(password);
@@ -53,19 +59,32 @@ export default function SignUpScreen() {
   };
 
   const handleValidation = () => {
-    const trimmedFullName = fullName.trim();
+    const trimmedName = name.trim();
+    const trimmedSurname = surname.trim();
+    const trimmedPhoneNumber = phoneNumber.trim();
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
-    let newErrors = { fullName: '', email: '', password: '' };
+    let newErrors = { name: '', surname: '', phoneNumber: '', email: '', password: '' };
     let isValid = true;
 
-    // Full Name Validation
-    if (!trimmedFullName) {
-      newErrors.fullName = 'Full name is required.';
+    if (!trimmedName) {
+      newErrors.name = 'Name is required.';
       isValid = false;
     }
 
-    // Email Validation
+    if (!trimmedSurname) {
+      newErrors.surname = 'Surname is required.';
+      isValid = false;
+    }
+
+    if (!trimmedPhoneNumber) {
+      newErrors.phoneNumber = 'Phone number is required.';
+      isValid = false;
+    } else if (!validatePhoneNumber(trimmedPhoneNumber)) {
+      newErrors.phoneNumber = 'Phone number must be exactly 10 digits (e.g., 1234567890).';
+      isValid = false;
+    }
+
     if (!trimmedEmail) {
       newErrors.email = 'Email is required.';
       isValid = false;
@@ -74,7 +93,6 @@ export default function SignUpScreen() {
       isValid = false;
     }
 
-    // Password Validation
     if (!trimmedPassword) {
       newErrors.password = 'Password is required.';
       isValid = false;
@@ -101,20 +119,21 @@ export default function SignUpScreen() {
 
   const handleSubmit = async () => {
     if (!handleValidation()) {
-      console.log("Validation failed:", errors);
+      console.log('Validation failed:', errors);
       return;
     }
 
     setLoading(true);
-    console.log("Attempting to sign up with email:", email);
+    console.log('Attempting to sign up with email:', email);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password.trim());
       const user = userCredential.user;
-      await updateProfile(user, { displayName: fullName.trim() });
-      console.log("User created successfully:", user);
-      navigation.navigate('Home'); // Navigate to Home after successful sign-up
+      const displayName = `${name.trim()} ${surname.trim()}`;
+      await updateProfile(user, { displayName });
+      console.log('User created successfully:', user);
+      navigation.navigate('MainTabs', { screen: 'Home' });
     } catch (err) {
-      console.error("Sign-up error:", { code: err.code, message: err.message });
+      console.error('Sign-up error:', { code: err.code, message: err.message });
       let errorMessage = '';
       switch (err.code) {
         case 'auth/email-already-in-use':
@@ -143,10 +162,10 @@ export default function SignUpScreen() {
     try {
       const credential = GoogleAuthProvider.credential(idToken);
       const userCredential = await signInWithCredential(auth, credential);
-      console.log("Google sign-in successful:", userCredential.user);
-      navigation.navigate('Home');
+      console.log('Google sign-in successful:', userCredential.user);
+      navigation.navigate('MainTabs', { screen: 'Home' });
     } catch (err) {
-      console.error("Google sign-in error:", { code: err.code, message: err.message });
+      console.error('Google sign-in error:', { code: err.code, message: err.message });
       let errorMessage = 'Google sign-in failed. Please try again.';
       switch (err.code) {
         case 'auth/invalid-credential':
@@ -165,83 +184,107 @@ export default function SignUpScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white" style={{ backgroundColor: themeColors.bg }}>
-      <SafeAreaView className="flex">
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView className="flex-1">
         <View className="flex-row justify-start">
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            className="p-2 rounded-tr-2xl rounded-bl-2xl ml-4"
+            className="p-2 rounded-tr-2xl rounded-bl-2xl ml-4 mt-4 bg-gray-200"
             disabled={loading}
           >
-            <ArrowLeftIcon size="20" color="black" />
+            <ArrowLeftIcon size={20} color="black" />
           </TouchableOpacity>
         </View>
-        <View className="flex-row justify-center">
-          <Image source={require('../assets/images/TJ+Logo.jpg')} style={{ width: 220, height: 200 }} />
-        </View>
-      </SafeAreaView>
-      <View className="flex-1 bg-white px-8 pt-8" style={{ borderTopLeftRadius: 50, borderTopRightRadius: 50 }}>
-        <View className="form space-y-2">
-          <Text className="text-gray-700 ml-4">Full Name</Text>
+        <View className="flex-1 justify-center items-center">
+          <Image
+            source={require('../assets/images/TJ.jpg')}
+            style={{ width: 220, height: 200, resizeMode: 'contain', borderRadius: 20 }}
+            className="mb-4 rounded-2xl"
+          />
+          <Text className="text-xl font-bold text-center mb-6">Sign Up</Text>
+
           <TextInput
-            className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-1"
-            value={fullName}
-            onChangeText={(value) => setFullName(value)}
+            className="border border-gray-300 rounded-lg p-3 mb-4 w-3/4"
+            value={name}
+            onChangeText={(value) => setName(value)}
             placeholder="Enter Name"
+            autoCapitalize="words"
             editable={!loading}
           />
-          {errors.fullName ? <Text className="text-red-500 ml-4 mb-2">{errors.fullName}</Text> : null}
+          {errors.name ? <Text className="text-red-500 text-center mb-4">{errors.name}</Text> : null}
 
-          <Text className="text-gray-700 ml-4">Email Address</Text>
           <TextInput
-            className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-1"
+            className="border border-gray-300 rounded-lg p-3 mb-4 w-3/4"
+            value={surname}
+            onChangeText={(value) => setSurname(value)}
+            placeholder="Enter Surname"
+            autoCapitalize="words"
+            editable={!loading}
+          />
+          {errors.surname ? <Text className="text-red-500 text-center mb-4">{errors.surname}</Text> : null}
+
+          <TextInput
+            className="border border-gray-300 rounded-lg p-3 mb-4 w-3/4"
+            value={phoneNumber}
+            onChangeText={(value) => setPhoneNumber(value)}
+            placeholder="Enter Phone Number (e.g., 1234567890)"
+            keyboardType="phone-pad"
+            editable={!loading}
+            maxLength={10}
+          />
+          {errors.phoneNumber ? <Text className="text-red-500 text-center mb-4">{errors.phoneNumber}</Text> : null}
+
+          <TextInput
+            className="border border-gray-300 rounded-lg p-3 mb-4 w-3/4"
             value={email}
             onChangeText={(value) => setEmail(value)}
-            placeholder="Enter Email"
+            placeholder="Email"
             autoCapitalize="none"
             keyboardType="email-address"
             editable={!loading}
           />
-          {errors.email ? <Text className="text-red-500 ml-4 mb-2">{errors.email}</Text> : null}
+          {errors.email ? <Text className="text-red-500 text-center mb-4">{errors.email}</Text> : null}
 
-          <Text className="text-gray-700 ml-4">Password</Text>
           <TextInput
-            className="p-4 bg-gray-100 text-gray-700 rounded-2xl mb-1"
+            className="border border-gray-300 rounded-lg p-3 mb-6 w-3/4"
             secureTextEntry
             value={password}
             onChangeText={(value) => setPassword(value)}
-            placeholder="Enter Password"
+            placeholder="Password"
             editable={!loading}
           />
-          {errors.password ? <Text className="text-red-500 ml-4 mb-2">{errors.password}</Text> : null}
+          {errors.password ? <Text className="text-red-500 text-center mb-4">{errors.password}</Text> : null}
 
           <TouchableOpacity
-            className={`py-3 rounded-xl ${loading ? 'bg-gray-400' : 'bg-blue-500'}`}
             onPress={handleSubmit}
+            className="py-3 bg-blue-900 rounded-xl w-3/4 mb-4"
             disabled={loading}
           >
-            <Text className="font-xl font-bold text-center text-white">
+            <Text className="text-xl font-bold text-center text-white">
               {loading ? 'Signing Up...' : 'Sign Up'}
             </Text>
           </TouchableOpacity>
-        </View>
-        <Text className="text-xl text-gray-700 font-bold text-center py-5">Or</Text>
-        <View className="flex-row justify-center space-x-12">
+
           <TouchableOpacity
-            className={`p-2 bg-gray-100 rounded-2xl ${loading ? 'opacity-50' : ''}`}
             onPress={() => promptAsync()}
+            className="py-3 bg-gray-200 rounded-xl w-3/4 flex-row justify-center items-center mb-4"
             disabled={loading || !request}
           >
-            <Image source={require('../assets/icons/google.png')} className="w-10 h-10" />
+            <Image
+              source={require('../assets/icons/google.png')}
+              style={{ width: 24, height: 24, marginRight: 10 }}
+            />
+            <Text className="text-xl font-bold text-center text-black">Sign Up with Google</Text>
           </TouchableOpacity>
+
+          <View className="flex-row justify-center mb-4">
+            <Text className="text-gray-500 font-semibold">Already have an account?</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} disabled={loading}>
+              <Text className="font-semibold text-blue-500"> Log In</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View className="flex-row justify-center mt-7">
-          <Text className="text-gray-500 font-semibold">Already have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')} disabled={loading}>
-            <Text className="font-semibold text-blue-500"> Log In</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
