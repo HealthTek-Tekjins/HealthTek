@@ -1,17 +1,22 @@
 import { View, Text, Switch, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ArrowLeftIcon } from 'react-native-heroicons/solid';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
+  const navigation = useNavigation();
+
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Back Button (Decorative for mockup) */}
+      {/* Back Button */}
       <View className="flex-row justify-start p-4">
         <TouchableOpacity
+          onPress={() => navigation.goBack()}
           className="p-2 rounded-tr-2xl rounded-bl-2xl bg-gray-200"
-          accessibilityLabel="Go back to previous screen (mockup)"
+          accessibilityLabel="Go back to previous screen"
         >
-          <View className="w-5 h-5 bg-black rounded" /> {/* Placeholder for ArrowLeftIcon */}
+          <ArrowLeftIcon size={20} color="black" />
         </TouchableOpacity>
       </View>
 
@@ -30,12 +35,14 @@ export default function SettingsScreen() {
           </View>
         </View>
         <TouchableOpacity
+          onPress={() => navigation.navigate('Profile')}
           className="py-4 bg-[#1E90FF] rounded-xl w-4/5 mb-6 shadow-md active:bg-[#1C86EE]"
           accessibilityLabel="Manage privacy settings"
         >
           <Text className="text-xl font-semibold text-white text-center">Privacy Settings</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          onPress={() => {/* Logout Logic */}}
           className="py-4 bg-[#1E90FF] rounded-xl w-4/5 shadow-md active:bg-[#1C86EE]"
           accessibilityLabel="Log out of the app"
         >

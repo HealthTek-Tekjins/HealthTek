@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
@@ -23,7 +23,7 @@ export default function WelcomeScreen() {
       {/* Main Content */}
       <View className="flex-1 justify-center items-center p-4">
         <Image
-          source={require('../assets/images/TJ+Logo.jpg')}
+          source={require('../assets/images/TJ.jpg')}
           style={{ width: 220, height: 200, resizeMode: 'contain', borderRadius: 20 }}
           className="mb-6 rounded-2xl shadow-md"
           accessibilityLabel="HealthTek Logo"

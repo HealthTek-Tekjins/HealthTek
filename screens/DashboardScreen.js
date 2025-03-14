@@ -1,17 +1,22 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ArrowLeftIcon } from 'react-native-heroicons/solid';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Dashboard() {
+  const navigation = useNavigation();
+
   return (
     <SafeAreaView className="flex-1 bg-[#F0F4F8]">
-      {/* Back Button (Decorative for mockup) */}
+      {/* Back Button */}
       <View className="flex-row justify-start p-4">
         <TouchableOpacity
+          onPress={() => navigation.goBack()}
           className="p-2 rounded-tr-2xl rounded-bl-2xl bg-gray-200"
-          accessibilityLabel="Go back to previous screen (mockup)"
+          accessibilityLabel="Go back to previous screen"
         >
-          <View className="w-5 h-5 bg-black rounded" /> {/* Placeholder for ArrowLeftIcon */}
+          <ArrowLeftIcon size={20} color="black" />
         </TouchableOpacity>
       </View>
 

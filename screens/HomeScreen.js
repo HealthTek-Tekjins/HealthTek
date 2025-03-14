@@ -4,20 +4,23 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
 import { useNavigation } from '@react-navigation/native';
 
-export default function WelcomeScreen() {
+export default function HomeScreen() {
   const navigation = useNavigation();
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-row justify-start p-2 bg-gray-200 rounded-tr-2xl rounded-bl-2xl ml-4 mt-4">
+      {/* Back Button */}
+      <View className="flex-row justify-start p-4">
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          className="p-2"
+          className="p-2 rounded-tr-2xl rounded-bl-2xl bg-gray-200"
           accessibilityLabel="Go back to previous screen"
         >
           <ArrowLeftIcon size={20} color="black" />
         </TouchableOpacity>
       </View>
+
+      {/* Main Content */}
       <View className="flex-1 justify-center items-center p-4">
         <Image
           source={require('../assets/images/TJ.jpg')}
