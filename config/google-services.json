@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "827006064376",
+    "project_id": "healthtek-9f1dc",
+    "storage_bucket": "healthtek-9f1dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827006064376:android:8a733531f699f61d9e8d0d",
+        "android_client_info": {
+          "package_name": "com.tekjins.healthtekAnd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827006064376-ooqkf9nc45vdh7ds1esq720cbemo0eit.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tekjins.healthtekAnd",
+            "certificate_hash": "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"
+          }
+        },
+        {
+          "client_id": "827006064376-v2jouoes34eiho63jcch9r7mo7u9p63l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuDfmYnp8jO0vYFOZckaYlVVucXIapt00"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "827006064376-v2jouoes34eiho63jcch9r7mo7u9p63l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "827006064376-jnnpm01gumiota59tp1ra2ohggs9r6j0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.tekjins.healthtek"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

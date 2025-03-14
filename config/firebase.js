@@ -1,10 +1,10 @@
-// config/firebase.js
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { 
-  FIREBASE_API_KEY, 
+  FIREBASE_API_KEY_IOS, 
+  FIREBASE_API_KEY_ANDROID, 
   FIREBASE_AUTH_DOMAIN, 
   FIREBASE_PROJECT_ID, 
   FIREBASE_STORAGE_BUCKET, 
@@ -14,8 +14,11 @@ import {
   FIREBASE_MEASUREMENT_ID 
 } from '@env';
 
+// Select the appropriate API key based on the platform
+const apiKey = Platform.OS === 'ios' ? FIREBASE_API_KEY_IOS : FIREBASE_API_KEY_ANDROID;
+
 const firebaseConfig = {
-  apiKey: FIREBASE_API_KEY,
+  apiKey: apiKey,
   authDomain: FIREBASE_AUTH_DOMAIN,
   projectId: FIREBASE_PROJECT_ID,
   storageBucket: FIREBASE_STORAGE_BUCKET,

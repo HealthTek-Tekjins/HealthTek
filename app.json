@@ -17,7 +17,16 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tekjins.healthtek",
+      "googleServicesFile": "./config/GoogleService-Info.plist"
+    },
+    "extra": {
+      "googleSignIn": {
+        "androidClientId": "827006064376-ooqkf9nc45vdh7ds1esq720cbemo0eit.apps.googleusercontent.com",
+        "iosClientId": "827006064376-jnnpm01gumiota59tp1ra2ohggs9r6j0.apps.googleusercontent.com",
+        "webClientId": "827006064376-v2jouoes34eiho63jcch9r7mo7u9p63l.apps.googleusercontent.com"
+      }
     },
     "android": {
       "adaptiveIcon": {

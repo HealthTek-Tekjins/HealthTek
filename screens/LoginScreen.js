@@ -7,6 +7,8 @@ import { auth } from '../config/firebase';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { GoogleAuthProvider, signInWithCredential, sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
+import { Platform } from 'react-native';
+import { GOOGLE_WEB_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '@env';
 
 // Ensure WebBrowser is initialized
 WebBrowser.maybeCompleteAuthSession();
@@ -17,11 +19,13 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Google SSO configuration
+  // Google SSO configuration with platform-specific client IDs
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: 'YOUR_WEB_CLIENT_ID',
-    iosClientId: 'YOUR_IOS_CLIENT_ID',
-    androidClientId: 'YOUR_ANDROID_GOOGLE_CLIENT_ID',
+    clientId: GOOGLE_WEB_CLIENT_ID,
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+    // For Expo Go, the web client ID is used by default
+    // Expo will automatically select the appropriate client ID for native builds
   });
 
   useEffect(() => {
@@ -158,7 +162,7 @@ export default function LoginScreen() {
       </View>
       <View className="flex-1 justify-center items-center">
         <Image
-          source={require('../assets/images/TJ.jpg')}
+          source={require('../assets/images/TJ.jpg')} // Updated to TJ+Logo.jpg
           style={{ width: 220, height: 200, resizeMode: 'contain', borderRadius: 20 }}
           className="mb-4 rounded-2xl"
         />
