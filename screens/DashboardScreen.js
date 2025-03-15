@@ -1,55 +1,58 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeftIcon } from 'react-native-heroicons/solid';
-import { useNavigation } from '@react-navigation/native';
+import { HeartIcon, CalendarIcon, ExclamationCircleIcon } from 'react-native-heroicons/solid';
 
 export default function Dashboard() {
-  const navigation = useNavigation();
-
   return (
-    <SafeAreaView className="flex-1 bg-[#F0F4F8]">
-      {/* Back Button */}
-      <View className="flex-row justify-start p-4">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="p-2 rounded-tr-2xl rounded-bl-2xl bg-gray-200"
-          accessibilityLabel="Go back to previous screen"
-        >
-          <ArrowLeftIcon size={20} color="black" />
-        </TouchableOpacity>
+    <SafeAreaView className="flex-1 bg-white">
+      {/* Dashboard Title */}
+      <View className="pt-12 pb-6">
+        <Text className="text-4xl font-bold text-center text-black">Dashboard</Text>
       </View>
 
       {/* Main Content */}
-      <View className="flex-1 justify-center items-center p-6">
+      <View className="flex-1 justify-center items-center px-6">
+        {/* TJ Logo */}
         <Image
-          source={require('../assets/images/TJ.jpg')}
-          style={{ width: 240, height: 220, resizeMode: 'contain', borderRadius: 24 }}
-          className="mb-8 rounded-2xl shadow-lg"
+          source={require('../assets/images/TL.png')}
+          style={{ width: 100, height: 150, resizeMode: 'contain', borderRadius: 20 }}
+          className="mb-10 rounded-2xl shadow-lg"
           accessibilityLabel="HealthTek Logo"
         />
-        <Text className="text-3xl font-bold text-center text-[#2A2A72] mb-8">
-          Welcome to Tekjin's HealthTek
-        </Text>
-        <View className="w-full max-w-md space-y-6">
+
+        {/* Buttons in Small Rounded Squares */}
+        <View className="flex-row justify-center items-center space-x-6">
+          {/* Input Health Data Button */}
           <TouchableOpacity
-            className="bg-[#1E90FF] p-5 rounded-xl shadow-lg active:bg-[#1C86EE]"
+            className="w-14 h-14 bg-[#F5F5F7] rounded-lg justify-center items-center shadow-md active:bg-gray-200"
             accessibilityLabel="Navigate to input health data"
           >
-            <Text className="text-xl font-semibold text-white text-center">Input Health Data</Text>
+            <HeartIcon size={24} color="#007AFF" />
           </TouchableOpacity>
+
+          {/* Book Appointment Button */}
           <TouchableOpacity
-            className="bg-[#1E90FF] p-5 rounded-xl shadow-lg active:bg-[#1C86EE]"
+            className="w-14 h-14 bg-[#F5F5F7] rounded-lg justify-center items-center shadow-md active:bg-gray-200"
             accessibilityLabel="Book an appointment"
           >
-            <Text className="text-xl font-semibold text-white text-center">Book Appointment</Text>
+            <CalendarIcon size={24} color="#007AFF" />
           </TouchableOpacity>
+
+          {/* SOS Emergency Button */}
           <TouchableOpacity
-            className="bg-red-500 p-5 rounded-xl shadow-lg active:bg-red-600"
+            className="w-14 h-14 bg-[#F5F5F7] rounded-lg justify-center items-center shadow-md active:bg-red-100"
             accessibilityLabel="Emergency SOS button"
           >
-            <Text className="text-xl font-semibold text-white text-center">SOS Emergency</Text>
+            <ExclamationCircleIcon size={24} color="#FF3B30" />
           </TouchableOpacity>
+        </View>
+
+        {/* Button Labels (Optional, Apple-style minimal labels) */}
+        <View className="flex-row justify-center items-center space-x-6 mt-4">
+          <Text className="w-14 text-center text-xs font-medium text-gray-600">Health Data</Text>
+          <Text className="w-13 text-center text-xs font-medium text-gray-1600">Appointment</Text>
+          <Text className="w-14 text-center text-xs font-medium text-gray-600">SOS</Text>
         </View>
       </View>
     </SafeAreaView>

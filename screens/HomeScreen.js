@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeftIcon } from 'react-native-heroicons/solid';
+import { ArrowLeftIcon, PhoneIcon, UserCircleIcon, UserPlusIcon } from 'react-native-heroicons/solid';
 import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
@@ -9,17 +9,12 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* Back Button */}
-      <View className="flex-row justify-start p-4">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="p-2 rounded-tr-2xl rounded-bl-2xl bg-gray-200"
-          accessibilityLabel="Go back to previous screen"
-        >
-          <ArrowLeftIcon size={20} color="black" />
-        </TouchableOpacity>
+      {/* Home Title in Top Right Corner */}
+      <View className="pr-4 pt-4">
+        <Text className="text-4xl font-bold text-black text-center">Home</Text>
       </View>
 
+    
       {/* Main Content */}
       <View className="flex-1 justify-center items-center p-4">
         <Image
@@ -31,17 +26,28 @@ export default function HomeScreen() {
         <Text className="text-xl font-bold text-center mb-6">Welcome to HealthTek</Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('Login')}
-          className="py-3 bg-blue-900 rounded-xl w-3/4 mb-4"
+          className="py-3 bg-blue-900 rounded-xl w-3/4 mb-4 flex-row justify-center items-center"
           accessibilityLabel="Navigate to login screen"
         >
-          <Text className="text-xl font-bold text-center text-white">Login</Text>
+          <Text className="text-xl font-bold text-white mr-2">Login</Text>
+          <UserCircleIcon size={20} color="white" />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('SignUp')}
-          className="py-3 bg-blue-900 rounded-xl w-3/4"
+          className="py-3 bg-blue-900 rounded-xl w-3/4 mb-4 flex-row justify-center items-center"
           accessibilityLabel="Navigate to sign up screen"
         >
-          <Text className="text-xl font-bold text-center text-white">Sign Up</Text>
+          <Text className="text-xl font-bold text-white mr-2">Sign Up</Text>
+          <UserPlusIcon size={20} color="white" />
+        </TouchableOpacity>
+        {/* New Contact Support Button */}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ContactSupport')}
+          className="py-3 bg-blue-900 rounded-xl w-3/4 flex-row justify-center items-center"
+          accessibilityLabel="Navigate to contact support"
+        >
+          <Text className="text-xl font-bold text-white mr-2">Contact Support</Text>
+          <PhoneIcon size={20} color="white" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
