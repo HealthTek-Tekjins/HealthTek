@@ -1,13 +1,18 @@
-import { View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Image, TextInput, ScrollView, Animated, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
 import { useNavigation } from '@react-navigation/native';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import { useTheme } from '../context/ThemeContext';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
 
 export default function SignUpScreen() {
   const navigation = useNavigation();
+  const { colors, isDarkMode } = useTheme();
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -15,6 +20,25 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ name: '', surname: '', phoneNumber: '', email: '', password: '' });
+
+  // Animation values
+  const fadeAnim = new Animated.Value(0);
+  const slideAnim = new Animated.Value(50);
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -134,95 +158,178 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView className="flex-1">
-        <View className="flex-row justify-start">
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            className="p-2 rounded-tr-2xl rounded-bl-2xl ml-4 mt-4 bg-gray-200"
-            disabled={loading}
-          >
-            <ArrowLeftIcon size={20} color="black" />
-          </TouchableOpacity>
-        </View>
-        <View className="flex-1 justify-center items-center">
-          <Image
-            source={require('../assets/images/TJ+Logo.jpg')} // Updated to TJ+Logo.jpg
-            style={{ width: 220, height: 200, resizeMode: 'contain', borderRadius: 20 }}
-            className="mb-4 rounded-2xl"
-          />
-          <Text className="text-xl font-bold text-center mb-6">Sign Up</Text>
-
-          <TextInput
-            className="border border-gray-300 rounded-lg p-3 mb-4 w-3/4"
-            value={name}
-            onChangeText={(value) => setName(value)}
-            placeholder="Enter Name"
-            autoCapitalize="words"
-            editable={!loading}
-          />
-          {errors.name ? <Text className="text-red-500 text-center mb-4">{errors.name}</Text> : null}
-
-          <TextInput
-            className="border border-gray-300 rounded-lg p-3 mb-4 w-3/4"
-            value={surname}
-            onChangeText={(value) => setSurname(value)}
-            placeholder="Enter Surname"
-            autoCapitalize="words"
-            editable={!loading}
-          />
-          {errors.surname ? <Text className="text-red-500 text-center mb-4">{errors.surname}</Text> : null}
-
-          <TextInput
-            className="border border-gray-300 rounded-lg p-3 mb-4 w-3/4"
-            value={phoneNumber}
-            onChangeText={(value) => setPhoneNumber(value)}
-            placeholder="Enter Phone Number (e.g., 1234567890)"
-            keyboardType="phone-pad"
-            editable={!loading}
-            maxLength={10}
-          />
-          {errors.phoneNumber ? <Text className="text-red-500 text-center mb-4">{errors.phoneNumber}</Text> : null}
-
-          <TextInput
-            className="border border-gray-300 rounded-lg p-3 mb-4 w-3/4"
-            value={email}
-            onChangeText={(value) => setEmail(value)}
-            placeholder="Email"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            editable={!loading}
-          />
-          {errors.email ? <Text className="text-red-500 text-center mb-4">{errors.email}</Text> : null}
-
-          <TextInput
-            className="border border-gray-300 rounded-lg p-3 mb-6 w-3/4"
-            secureTextEntry
-            value={password}
-            onChangeText={(value) => setPassword(value)}
-            placeholder="Password"
-            editable={!loading}
-          />
-          {errors.password ? <Text className="text-red-500 text-center mb-4">{errors.password}</Text> : null}
-
-          <TouchableOpacity 
-            onPress={handleSubmit}
-            className="py-3 bg-blue-900 rounded-xl w-3/4 mb-4"
-            disabled={loading}
-          >
-            <Text className="text-xl font-bold text-center text-white">
-              {loading ? 'Signing Up...' : 'Sign Up'}
-            </Text>
-          </TouchableOpacity>
-
-          <View className="flex-row justify-center mb-4">
-            <Text className="text-gray-500 font-semibold">Already have an account?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')} disabled={loading}>
-              <Text className="font-semibold text-blue-500"> Log In</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient
+        colors={isDarkMode ? ['#1a1a1a', '#2d2d2d'] : ['#ffffff', '#f0f0f0']}
+        style={{ flex: 1 }}
+      >
+        <ScrollView className="flex-1">
+          <View className="flex-row justify-start">
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              className="p-2 rounded-tr-2xl rounded-bl-2xl ml-4 mt-4"
+              style={{ backgroundColor: colors.card }}
+              disabled={loading}
+            >
+              <ArrowLeftIcon size={20} color={colors.text} />
             </TouchableOpacity>
           </View>
-        </View>
-      </ScrollView>
+
+          <Animated.View 
+            className="flex-1 justify-center items-center"
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            }}
+          >
+            <Image
+              source={require('../assets/images/TJ+Logo.jpg')}
+              style={{ 
+                width: width * 0.6, 
+                height: width * 0.6, 
+                resizeMode: 'contain', 
+                borderRadius: 20,
+                shadowColor: colors.text,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.2,
+                shadowRadius: 8,
+                elevation: 5,
+              }}
+              className="mb-8 rounded-2xl"
+            />
+
+            <Text style={{ color: colors.text }} className="text-2xl font-bold text-center mb-8">
+              Create Account
+            </Text>
+
+            <View style={{ width: '85%', marginBottom: 20 }}>
+              <TextInput
+                className="rounded-xl p-4"
+                style={{ 
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                placeholder="Enter Name"
+                placeholderTextColor={colors.textSecondary}
+                value={name}
+                onChangeText={(value) => setName(value)}
+                autoCapitalize="words"
+                editable={!loading}
+              />
+              {errors.name ? <Text style={{ color: colors.error, marginTop: 4 }}>{errors.name}</Text> : null}
+            </View>
+
+            <View style={{ width: '85%', marginBottom: 20 }}>
+              <TextInput
+                className="rounded-xl p-4"
+                style={{ 
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                placeholder="Enter Surname"
+                placeholderTextColor={colors.textSecondary}
+                value={surname}
+                onChangeText={(value) => setSurname(value)}
+                autoCapitalize="words"
+                editable={!loading}
+              />
+              {errors.surname ? <Text style={{ color: colors.error, marginTop: 4 }}>{errors.surname}</Text> : null}
+            </View>
+
+            <View style={{ width: '85%', marginBottom: 20 }}>
+              <TextInput
+                className="rounded-xl p-4"
+                style={{ 
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                placeholder="Enter Phone Number (e.g., 1234567890)"
+                placeholderTextColor={colors.textSecondary}
+                value={phoneNumber}
+                onChangeText={(value) => setPhoneNumber(value)}
+                keyboardType="phone-pad"
+                editable={!loading}
+                maxLength={10}
+              />
+              {errors.phoneNumber ? <Text style={{ color: colors.error, marginTop: 4 }}>{errors.phoneNumber}</Text> : null}
+            </View>
+
+            <View style={{ width: '85%', marginBottom: 20 }}>
+              <TextInput
+                className="rounded-xl p-4"
+                style={{ 
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                placeholder="Email"
+                placeholderTextColor={colors.textSecondary}
+                value={email}
+                onChangeText={(value) => setEmail(value)}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                editable={!loading}
+              />
+              {errors.email ? <Text style={{ color: colors.error, marginTop: 4 }}>{errors.email}</Text> : null}
+            </View>
+
+            <View style={{ width: '85%', marginBottom: 20 }}>
+              <TextInput
+                className="rounded-xl p-4"
+                style={{ 
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                secureTextEntry
+                placeholder="Password"
+                placeholderTextColor={colors.textSecondary}
+                value={password}
+                onChangeText={(value) => setPassword(value)}
+                editable={!loading}
+              />
+              {errors.password ? <Text style={{ color: colors.error, marginTop: 4 }}>{errors.password}</Text> : null}
+            </View>
+
+            <TouchableOpacity 
+              onPress={handleSubmit}
+              className="rounded-xl w-3/4 mb-6"
+              style={{ 
+                backgroundColor: colors.primary,
+                padding: 16,
+              }}
+              disabled={loading}
+            >
+              <Text className="text-xl font-bold text-center text-white">
+                {loading ? 'Signing Up...' : 'Sign Up'}
+              </Text>
+            </TouchableOpacity>
+
+            <View className="flex-row justify-center items-center mb-8">
+              <Text style={{ color: colors.textSecondary }} className="text-base">
+                Already have an account?
+              </Text>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('Login')} 
+                disabled={loading}
+                className="ml-2"
+              >
+                <Text style={{ color: colors.primary }} className="text-base font-bold">
+                  Log In
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </ScrollView>
+      </LinearGradient>
     </SafeAreaView>
   );
 }

@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; // Added for bottom tabs
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useTheme } from '../context/ThemeContext';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
@@ -15,15 +16,14 @@ import LogoutScreen from '../screens/LogoutScreen';
 import HealthDataScreen from '../screens/HealthDataScreen';
 import AppointmentScreen from '../screens/AppointmentScreen';
 import EmergencyScreen from '../screens/EmergencyScreen';
-import { MaterialIcons } from '@expo/vector-icons'; // For tab icons
+import { MaterialIcons } from '@expo/vector-icons';
 
-// Stack Navigator for the overall app
 const Stack = createNativeStackNavigator();
-// Tab Navigator for the bottom navigation
 const Tab = createBottomTabNavigator();
 
-// Bottom Tab Navigator for Home, Settings, Dashboard, Profile
 function MainTabs() {
+  const { colors, isDarkMode } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -32,47 +32,133 @@ function MainTabs() {
           if (route.name === 'Home') {
             iconName = 'home';
           } else if (route.name === 'Settings') {
-            iconName = 'settings';
+            iconName = 'person';
           } else if (route.name === 'Dashboard') {
             iconName = 'dashboard';
           } else if (route.name === 'Profile') {
-            iconName = 'person';
+            iconName = 'settings';
           }
-          return <MaterialIcons name={iconName} size={28} color={focused ? '#ff69b4' : '#757575'} />;
+          return (
+            <MaterialIcons 
+              name={iconName} 
+              size={28} 
+              color={focused ? '#FF69B4' : colors.textSecondary} 
+            />
+          );
         },
-        tabBarActiveTintColor: '#ff69b4', // Pink for active tab
-        tabBarInactiveTintColor: '#757575', // Grey for inactive tabs
-        tabBarStyle: { backgroundColor: '#f0f0f0', paddingBottom: 5, height: 60 }, // Style the tab bar
-        tabBarLabelStyle: { fontSize: 12, marginBottom: 5 }, // Style the labels
-        headerShown: false, // Hide header for tab screens
+        tabBarActiveTintColor: '#FF69B4',
+        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarStyle: { 
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
+          paddingBottom: 5,
+          height: 60,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        tabBarLabelStyle: { 
+          fontSize: 12,
+          marginBottom: 5,
+          fontWeight: '500',
+        },
+        headerShown: false,
+        tabBarHideOnKeyboard: true,
+        tabBarShowLabel: true,
+        tabBarItemStyle: {
+          padding: 5,
+        },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen 
+        name="Home" 
+        component={HomeScreen}
+        options={{
+          tabBarLabel: 'Home',
+        }}
+      />
+      <Tab.Screen 
+        name="Dashboard" 
+        component={DashboardScreen}
+        options={{
+          tabBarLabel: 'Dashboard',
+        }}
+      />
+      <Tab.Screen 
+        name="Settings" 
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Profile',
+        }}
+      />
+      <Tab.Screen 
+        name="Profile" 
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: 'Settings',
+        }}
+      />
     </Tab.Navigator>
   );
 }
 
-// Stack Navigator for the app
 export default function AppNavigation() {
+  const { colors } = useTheme();
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Welcome">
+      <Stack.Navigator 
+        initialRouteName="Welcome"
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: colors.card,
+          },
+          headerTintColor: colors.text,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+          cardStyle: {
+            backgroundColor: colors.background,
+          },
+        }}
+      >
         <Stack.Screen name="Welcome" options={{ headerShown: false }} component={WelcomeScreen} />
         <Stack.Screen name="Login" options={{ headerShown: false }} component={LoginScreen} />
         <Stack.Screen name="SignUp" options={{ headerShown: false }} component={SignUpScreen} />
         <Stack.Screen name="MainTabs" options={{ headerShown: false }} component={MainTabs} />
-        <Stack.Screen name="PrivacySettings" options={{ headerShown: true, title: 'Privacy Settings' }} component={PrivacySettingsScreen} />
-        <Stack.Screen name="About" options={{ headerShown: true, title: 'About' }} component={AboutScreen} />
+        <Stack.Screen 
+          name="PrivacySettings" 
+          options={{ 
+            headerShown: true, 
+            title: 'Privacy Settings',
+            headerStyle: {
+              backgroundColor: colors.card,
+            },
+            headerTintColor: colors.text,
+          }} 
+          component={PrivacySettingsScreen} 
+        />
+        <Stack.Screen 
+          name="About" 
+          options={{ 
+            headerShown: true, 
+            title: 'About',
+            headerStyle: {
+              backgroundColor: colors.card,
+            },
+            headerTintColor: colors.text,
+          }} 
+          component={AboutScreen} 
+        />
         <Stack.Screen name="Logout" options={{ headerShown: false }} component={LogoutScreen} />
         <Stack.Screen 
           name="HealthData" 
           options={{ 
             headerShown: false,
             presentation: 'modal',
-            animation: 'slide_from_bottom'
+            animation: 'slide_from_bottom',
+            cardStyle: {
+              backgroundColor: colors.background,
+            },
           }} 
           component={HealthDataScreen} 
         />
@@ -81,7 +167,10 @@ export default function AppNavigation() {
           options={{ 
             headerShown: false,
             presentation: 'modal',
-            animation: 'slide_from_bottom'
+            animation: 'slide_from_bottom',
+            cardStyle: {
+              backgroundColor: colors.background,
+            },
           }} 
           component={AppointmentScreen} 
         />
@@ -90,7 +179,10 @@ export default function AppNavigation() {
           options={{ 
             headerShown: false,
             presentation: 'modal',
-            animation: 'slide_from_bottom'
+            animation: 'slide_from_bottom',
+            cardStyle: {
+              backgroundColor: colors.background,
+            },
           }} 
           component={EmergencyScreen} 
         />
