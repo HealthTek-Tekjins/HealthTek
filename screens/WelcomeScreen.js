@@ -85,38 +85,45 @@ export default function WelcomeScreen() {
               }}
               className="w-full px-8"
             >
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Login')}
-                className="rounded-xl w-full mb-4"
-                style={{
-                  backgroundColor: '#FF69B4',
-                  padding: 16,
-                  shadowColor: '#FF69B4',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 5,
-                }}
-              >
-                <Text className="text-xl font-bold text-center text-white">
-                  Login
-                </Text>
-              </TouchableOpacity>
+              <View className="space-y-4">
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Login')}
+                  className="rounded-xl w-full"
+                  style={{
+                    backgroundColor: '#FF69B4',
+                    padding: 16,
+                    shadowColor: '#FF69B4',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 5,
+                  }}
+                >
+                  <Text className="text-xl font-bold text-center text-white">
+                    Login
+                  </Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => navigation.navigate('SignUp')}
-                className="rounded-xl w-full"
-                style={{
-                  backgroundColor: colors.card,
-                  padding: 16,
-                  borderWidth: 2,
-                  borderColor: '#FF69B4',
-                }}
-              >
-                <Text style={{ color: '#FF69B4' }} className="text-xl font-bold text-center">
-                  Sign Up
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('SignUp')}
+                  className="rounded-xl w-full"
+                  style={{
+                    backgroundColor: colors.card,
+                    padding: 16,
+                    borderWidth: 2,
+                    borderColor: '#FF69B4',
+                    shadowColor: colors.text,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 8,
+                    elevation: 3,
+                  }}
+                >
+                  <Text style={{ color: '#FF69B4' }} className="text-xl font-bold text-center">
+                    Sign Up
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </Animated.View>
           </Animated.View>
         </View>

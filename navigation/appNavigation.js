@@ -17,6 +17,16 @@ import HealthDataScreen from '../screens/HealthDataScreen';
 import AppointmentScreen from '../screens/AppointmentScreen';
 import EmergencyScreen from '../screens/EmergencyScreen';
 import { MaterialIcons } from '@expo/vector-icons';
+import AddHealthData from '../screens/AddHealthData';
+import AddAppointment from '../screens/AddAppointment';
+import { 
+  HomeIcon, 
+  CalendarIcon, 
+  ChartBarIcon, 
+  UserIcon, 
+  Cog6ToothIcon,
+  PlusIcon
+} from 'react-native-heroicons/solid';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -185,6 +195,22 @@ export default function AppNavigation() {
             },
           }} 
           component={EmergencyScreen} 
+        />
+        <Stack.Screen 
+          name="AddHealthData" 
+          component={AddHealthData}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+          }}
+        />
+        <Stack.Screen 
+          name="AddAppointment" 
+          component={AddAppointment}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

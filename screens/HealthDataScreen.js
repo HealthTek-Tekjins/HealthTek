@@ -1,166 +1,263 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Animated } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { HeartIcon, ArrowLeftIcon } from 'react-native-heroicons/solid';
-import { useAuth } from '../context/AuthContext';
-import { saveHealthData, getUserHealthData } from '../services/firebaseService';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '../context/ThemeContext';
+import { 
+  HeartIcon, 
+  ChartBarIcon, 
+  PlusIcon,
+  TrashIcon,
+  PencilIcon,
+  ExclamationCircleIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon
+} from 'react-native-heroicons/solid';
+import { LinearGradient } from 'expo-linear-gradient';
+import { auth, db } from '../config/firebase';
+import { collection, query, where, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
-export default function HealthDataScreen({ navigation }) {
-  const { user } = useAuth();
+export default function HealthDataScreen() {
+  const navigation = useNavigation();
+  const { colors, isDarkMode } = useTheme();
   const [healthData, setHealthData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    loadHealthData();
-  }, []);
+  // Animation values
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
 
-  const loadHealthData = async () => {
+  const fetchHealthData = async () => {
     try {
-      if (user) {
-        const data = await getUserHealthData(user.uid);
-        setHealthData(data);
+      setLoading(true);
+      setError(null);
+      const user = auth.currentUser;
+      
+      if (!user) {
+        throw new Error('User not authenticated');
       }
+
+      const healthDataRef = collection(db, 'healthData');
+      const q = query(healthDataRef, where('userId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      
+      const healthDataItems = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      // Sort by date
+      healthDataItems.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setHealthData(healthDataItems);
     } catch (error) {
-      Alert.alert('Error', 'Failed to load health data');
+      console.error('Error fetching health data:', error);
+      setError('Failed to load health data. Please try again.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const handleSaveHealthData = async (type, value) => {
+  useEffect(() => {
+    fetchHealthData();
+  }, []);
+
+  useEffect(() => {
+    // Start animations
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const handleDeleteData = async (dataId) => {
     try {
-      if (!user) {
-        Alert.alert('Error', 'You must be logged in to save health data');
-        return;
-      }
-
-      const data = {
-        type,
-        value,
-        userId: user.uid,
-      };
-
-      await saveHealthData(user.uid, data);
-      Alert.alert('Success', 'Health data saved successfully');
-      loadHealthData(); // Reload the data
+      Alert.alert(
+        'Delete Health Data',
+        'Are you sure you want to delete this health data entry?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              await deleteDoc(doc(db, 'healthData', dataId));
+              setHealthData(healthData.filter(item => item.id !== dataId));
+            },
+          },
+        ]
+      );
     } catch (error) {
-      Alert.alert('Error', 'Failed to save health data');
+      console.error('Error deleting health data:', error);
+      Alert.alert('Error', 'Failed to delete health data. Please try again.');
     }
+  };
+
+  const handleEditData = (data) => {
+    navigation.navigate('EditHealthData', { data });
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const getTrendIcon = (trend) => {
+    if (trend === 'up') {
+      return <ArrowTrendingUpIcon size={20} color="#4CAF50" />;
+    } else if (trend === 'down') {
+      return <ArrowTrendingDownIcon size={20} color="#F44336" />;
+    }
+    return null;
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      <View className="flex-row items-center px-6 py-4 border-b border-gray-200">
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          className="mr-4"
-        >
-          <ArrowLeftIcon size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text className="text-2xl font-bold text-black">Health Data</Text>
-      </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <LinearGradient
+        colors={isDarkMode ? ['#1a1a1a', '#2d2d2d'] : ['#ffffff', '#f0f0f0']}
+        style={{ flex: 1 }}
+      >
+        <ScrollView className="flex-1">
+          <Animated.View 
+            className="p-4"
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            }}
+          >
+            <View className="flex-row justify-between items-center mb-6">
+              <Text style={{ color: colors.text }} className="text-2xl font-bold">
+                Health Data
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AddHealthData')}
+                className="bg-[#FF69B4] p-3 rounded-full"
+                style={{
+                  shadowColor: '#FF69B4',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 5,
+                }}
+              >
+                <PlusIcon size={24} color="white" />
+              </TouchableOpacity>
+            </View>
 
-      {/* Main Content */}
-      <ScrollView className="flex-1 px-6 py-4">
-        {/* Health Metrics Section */}
-        <View className="bg-[#F5F5F7] rounded-xl p-4 mb-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-3">Daily Metrics</Text>
-          <View className="space-y-3">
-            <TouchableOpacity 
-              className="bg-white rounded-lg p-4 shadow-sm"
-              onPress={() => {
-                // Implement input modal for blood pressure
-                Alert.prompt(
-                  'Blood Pressure',
-                  'Enter your blood pressure (e.g., 120/80)',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { 
-                      text: 'Save',
-                      onPress: (value) => handleSaveHealthData('bloodPressure', value)
-                    }
-                  ]
-                );
-              }}
-            >
-              <Text className="text-gray-700 font-medium">Blood Pressure</Text>
-              <Text className="text-gray-500 text-sm">Tap to record</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              className="bg-white rounded-lg p-4 shadow-sm"
-              onPress={() => {
-                Alert.prompt(
-                  'Heart Rate',
-                  'Enter your heart rate (bpm)',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { 
-                      text: 'Save',
-                      onPress: (value) => handleSaveHealthData('heartRate', value)
-                    }
-                  ]
-                );
-              }}
-            >
-              <Text className="text-gray-700 font-medium">Heart Rate</Text>
-              <Text className="text-gray-500 text-sm">Tap to record</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              className="bg-white rounded-lg p-4 shadow-sm"
-              onPress={() => {
-                Alert.prompt(
-                  'Blood Sugar',
-                  'Enter your blood sugar level (mg/dL)',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    { 
-                      text: 'Save',
-                      onPress: (value) => handleSaveHealthData('bloodSugar', value)
-                    }
-                  ]
-                );
-              }}
-            >
-              <Text className="text-gray-700 font-medium">Blood Sugar</Text>
-              <Text className="text-gray-500 text-sm">Tap to record</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Recent Records */}
-        <View className="bg-[#F5F5F7] rounded-xl p-4 mb-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-3">Recent Records</Text>
-          {healthData.length > 0 ? (
-            healthData.slice(0, 5).map((record, index) => (
-              <View key={index} className="bg-white rounded-lg p-4 shadow-sm mb-2">
-                <Text className="text-gray-700 font-medium capitalize">{record.type}</Text>
-                <Text className="text-gray-500 text-sm">{record.value}</Text>
-                <Text className="text-gray-400 text-xs mt-1">
-                  {new Date(record.timestamp?.toDate()).toLocaleString()}
-                </Text>
+            {loading ? (
+              <View className="items-center justify-center py-8">
+                <Text style={{ color: colors.textSecondary }}>Loading health data...</Text>
               </View>
-            ))
-          ) : (
-            <Text className="text-gray-500 text-center">No records yet</Text>
-          )}
-        </View>
+            ) : error ? (
+              <View className="items-center justify-center py-8">
+                <ExclamationCircleIcon size={48} color="#FF69B4" />
+                <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 8 }}>
+                  {error}
+                </Text>
+                <TouchableOpacity
+                  onPress={fetchHealthData}
+                  className="mt-4 bg-[#FF69B4] px-6 py-3 rounded-xl"
+                >
+                  <Text className="text-white font-semibold">Try Again</Text>
+                </TouchableOpacity>
+              </View>
+            ) : healthData.length === 0 ? (
+              <View className="items-center justify-center py-8">
+                <ChartBarIcon size={48} color="#FF69B4" />
+                <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 8 }}>
+                  No health data recorded yet
+                </Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('AddHealthData')}
+                  className="mt-4 bg-[#FF69B4] px-6 py-3 rounded-xl"
+                >
+                  <Text className="text-white font-semibold">Add Health Data</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View className="space-y-4">
+                {healthData.map((data) => (
+                  <View
+                    key={data.id}
+                    style={{
+                      backgroundColor: colors.card,
+                      borderRadius: 16,
+                      padding: 16,
+                      shadowColor: colors.text,
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.1,
+                      shadowRadius: 4,
+                      elevation: 3,
+                    }}
+                  >
+                    <View className="flex-row justify-between items-start mb-4">
+                      <View>
+                        <Text style={{ color: colors.text }} className="text-xl font-bold mb-1">
+                          {data.type}
+                        </Text>
+                        <Text style={{ color: colors.textSecondary }} className="text-base">
+                          {formatDate(data.date)}
+                        </Text>
+                      </View>
+                      <View className="flex-row space-x-2">
+                        <TouchableOpacity
+                          onPress={() => handleEditData(data)}
+                          className="p-2 rounded-full"
+                          style={{ backgroundColor: colors.background }}
+                        >
+                          <PencilIcon size={20} color="#FF69B4" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => handleDeleteData(data.id)}
+                          className="p-2 rounded-full"
+                          style={{ backgroundColor: colors.background }}
+                        >
+                          <TrashIcon size={20} color="#FF69B4" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
 
-        {/* Medication Section */}
-        <View className="bg-[#F5F5F7] rounded-xl p-4 mb-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-3">Medication Tracker</Text>
-          <TouchableOpacity className="bg-white rounded-lg p-4 shadow-sm">
-            <Text className="text-gray-700 font-medium">Add Medication</Text>
-            <Text className="text-gray-500 text-sm">Track your medications</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Symptoms Section */}
-        <View className="bg-[#F5F5F7] rounded-xl p-4">
-          <Text className="text-lg font-semibold text-gray-800 mb-3">Symptoms Log</Text>
-          <TouchableOpacity className="bg-white rounded-lg p-4 shadow-sm">
-            <Text className="text-gray-700 font-medium">Record Symptoms</Text>
-            <Text className="text-gray-500 text-sm">Track how you're feeling</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+                    <View className="space-y-3">
+                      <View className="flex-row items-center justify-between">
+                        <Text style={{ color: colors.text }} className="text-lg">
+                          Value: {data.value} {data.unit}
+                        </Text>
+                        {getTrendIcon(data.trend)}
+                      </View>
+                      
+                      {data.notes && (
+                        <View className="mt-4 pt-4 border-t border-gray-200">
+                          <Text style={{ color: colors.textSecondary }} className="text-sm">
+                            {data.notes}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+          </Animated.View>
+        </ScrollView>
+      </LinearGradient>
     </SafeAreaView>
   );
 } 
