@@ -1,17 +1,10 @@
 import { View, Text, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
 import { useNavigation } from '@react-navigation/native';
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../config/firebase';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
-import { Platform } from 'react-native';
-import { GOOGLE_WEB_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '@env';
-
-// Ensure WebBrowser is initialized
-WebBrowser.maybeCompleteAuthSession();
 
 export default function SignUpScreen() {
   const navigation = useNavigation();
@@ -22,27 +15,6 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ name: '', surname: '', phoneNumber: '', email: '', password: '' });
-
-  // Google SSO configuration with platform-specific client IDs
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: GOOGLE_WEB_CLIENT_ID,
-    iosClientId: GOOGLE_IOS_CLIENT_ID,
-    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
-    // For Expo Go, the web client ID is used by default
-    // Expo will automatically select the appropriate client ID for native builds
-  });
-
-  // Handle Google SSO response
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { id_token } = response.params;
-      handleGoogleSignIn(id_token);
-    } else if (response?.type === 'error') {
-      console.error('Google SSO error:', response);
-      setErrors((prev) => ({ ...prev, email: 'Google sign-in failed. Please try again.' }));
-      setLoading(false);
-    }
-  }, [response]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -161,32 +133,6 @@ export default function SignUpScreen() {
     }
   };
 
-  const handleGoogleSignIn = async (idToken) => {
-    setLoading(true);
-    try {
-      const credential = GoogleAuthProvider.credential(idToken);
-      const userCredential = await signInWithCredential(auth, credential);
-      console.log('Google sign-in successful:', userCredential.user);
-      navigation.navigate('MainTabs', { screen: 'Home' });
-    } catch (err) {
-      console.error('Google sign-in error:', { code: err.code, message: err.message });
-      let errorMessage = 'Google sign-in failed. Please try again.';
-      switch (err.code) {
-        case 'auth/invalid-credential':
-          errorMessage = 'Invalid Google credentials.';
-          break;
-        case 'auth/account-exists-with-different-credential':
-          errorMessage = 'An account already exists with a different sign-in method.';
-          break;
-        default:
-          errorMessage = err.message;
-      }
-      setErrors((prev) => ({ ...prev, email: errorMessage }));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView className="flex-1">
@@ -259,7 +205,7 @@ export default function SignUpScreen() {
           />
           {errors.password ? <Text className="text-red-500 text-center mb-4">{errors.password}</Text> : null}
 
-          <TouchableOpacity
+          <TouchableOpacity 
             onPress={handleSubmit}
             className="py-3 bg-blue-900 rounded-xl w-3/4 mb-4"
             disabled={loading}
@@ -267,18 +213,6 @@ export default function SignUpScreen() {
             <Text className="text-xl font-bold text-center text-white">
               {loading ? 'Signing Up...' : 'Sign Up'}
             </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => promptAsync()}
-            className="py-3 bg-gray-200 rounded-xl w-3/4 flex-row justify-center items-center mb-4"
-            disabled={loading || !request}
-          >
-            <Image
-              source={require('../assets/icons/google.png')}
-              style={{ width: 24, height: 24, marginRight: 10 }}
-            />
-            <Text className="text-xl font-bold text-center text-black">Sign Up with Google</Text>
           </TouchableOpacity>
 
           <View className="flex-row justify-center mb-4">

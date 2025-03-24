@@ -9,6 +9,12 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import PrivacySettingsScreen from '../screens/PrivacySettingsScreen';
+import AboutScreen from '../screens/AboutScreen';
+import LogoutScreen from '../screens/LogoutScreen';
+import HealthDataScreen from '../screens/HealthDataScreen';
+import AppointmentScreen from '../screens/AppointmentScreen';
+import EmergencyScreen from '../screens/EmergencyScreen';
 import { MaterialIcons } from '@expo/vector-icons'; // For tab icons
 
 // Stack Navigator for the overall app
@@ -58,6 +64,36 @@ export default function AppNavigation() {
         <Stack.Screen name="Login" options={{ headerShown: false }} component={LoginScreen} />
         <Stack.Screen name="SignUp" options={{ headerShown: false }} component={SignUpScreen} />
         <Stack.Screen name="MainTabs" options={{ headerShown: false }} component={MainTabs} />
+        <Stack.Screen name="PrivacySettings" options={{ headerShown: true, title: 'Privacy Settings' }} component={PrivacySettingsScreen} />
+        <Stack.Screen name="About" options={{ headerShown: true, title: 'About' }} component={AboutScreen} />
+        <Stack.Screen name="Logout" options={{ headerShown: false }} component={LogoutScreen} />
+        <Stack.Screen 
+          name="HealthData" 
+          options={{ 
+            headerShown: false,
+            presentation: 'modal',
+            animation: 'slide_from_bottom'
+          }} 
+          component={HealthDataScreen} 
+        />
+        <Stack.Screen 
+          name="Appointment" 
+          options={{ 
+            headerShown: false,
+            presentation: 'modal',
+            animation: 'slide_from_bottom'
+          }} 
+          component={AppointmentScreen} 
+        />
+        <Stack.Screen 
+          name="Emergency" 
+          options={{ 
+            headerShown: false,
+            presentation: 'modal',
+            animation: 'slide_from_bottom'
+          }} 
+          component={EmergencyScreen} 
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

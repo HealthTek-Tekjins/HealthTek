@@ -1,65 +1,109 @@
-import { View, Text, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ShieldCheckIcon, ArrowRightOnRectangleIcon, InformationCircleIcon } from 'react-native-heroicons/solid';
+import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { 
+  ArrowLeftIcon, 
+  BellIcon, 
+  ShieldCheckIcon, 
+  InformationCircleIcon,
+  MoonIcon,
+  SunIcon
+} from 'react-native-heroicons/solid';
 
-export default function SettingsScreen() {
+export default function SettingsScreen({ navigation }) {
+  const { colors, isDarkMode, toggleTheme } = useTheme();
+  const { user } = useAuth();
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Settings Title in Top Right Corner */}
-      <View className="pr-4 pt-4">
-        <Text className="text-4xl font-bold text-black text-center">Settings</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Header */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: colors.border }}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ marginRight: 16 }}
+        >
+          <ArrowLeftIcon size={24} color={colors.primary} />
+        </TouchableOpacity>
+        <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.text }}>Settings</Text>
       </View>
 
       {/* Main Content */}
-      <View className="flex-1 justify-center items-center px-6">
-        {/* Notifications Section */}
-        <View className="w-full max-w-md bg-[#F5F5F7] p-6 rounded-2xl shadow-lg mb-10">
-          <View className="flex-row justify-between items-center">
-            <Text className="text-lg font-medium text-gray-800">Notifications</Text>
+      <ScrollView style={{ flex: 1, padding: 16 }}>
+        {/* User Profile Section */}
+        <View style={{ backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 8 }}>Profile</Text>
+          <Text style={{ color: colors.textSecondary }}>{user?.email}</Text>
+        </View>
+
+        {/* App Settings Section */}
+        <View style={{ backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 16 }}>App Settings</Text>
+          
+          {/* Dark Mode Toggle */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {isDarkMode ? (
+                <MoonIcon size={24} color={colors.primary} style={{ marginRight: 12 }} />
+              ) : (
+                <SunIcon size={24} color={colors.primary} style={{ marginRight: 12 }} />
+              )}
+              <Text style={{ color: colors.text, fontSize: 16 }}>Dark Mode</Text>
+            </View>
             <Switch
-              className="h-6 w-12"
-              trackColor={{ false: '#D1D5DB', true: '#1E90FF' }}
-              thumbColor={true ? '#FFFFFF' : '#9CA3AF'}
-              accessibilityLabel="Toggle notifications"
+              value={isDarkMode}
+              onValueChange={toggleTheme}
+              trackColor={{ false: '#767577', true: colors.primary }}
+              thumbColor={isDarkMode ? '#FFFFFF' : '#FFFFFF'}
             />
           </View>
-        </View>
 
-        {/* Buttons in Small Rounded Squares */}
-        <View className="flex-row justify-center items-center space-x-6">
-          {/* Privacy Settings Button */}
-          <TouchableOpacity
-            className="w-14 h-14 bg-[#F5F5F7] rounded-lg justify-center items-center shadow-md active:bg-gray-200"
-            accessibilityLabel="Manage privacy settings"
-          >
-            <ShieldCheckIcon size={24} color="#007AFF" />
-          </TouchableOpacity>
-
-          {/* About Page Button */}
-          <TouchableOpacity
-            className="w-14 h-14 bg-[#F5F5F7] rounded-lg justify-center items-center shadow-md active:bg-gray-200"
-            accessibilityLabel="Navigate to about page"
-          >
-            <InformationCircleIcon size={24} color="#007AFF" />
-          </TouchableOpacity>
-
-          {/* Log Out Button */}
-          <TouchableOpacity
-            className="w-14 h-14 bg-[#F5F5F7] rounded-lg justify-center items-center shadow-md active:bg-gray-200"
-            accessibilityLabel="Log out of the app"
-          >
-            <ArrowRightOnRectangleIcon size={24} color="#007AFF" />
+          {/* Notifications */}
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+            <BellIcon size={24} color={colors.primary} style={{ marginRight: 12 }} />
+            <Text style={{ color: colors.text, fontSize: 16 }}>Notifications</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Button Labels */}
-        <View className="flex-row justify-center items-center space-x-6 mt-4">
-          <Text className="w-14 text-center text-xs font-medium text-gray-600">Privacy</Text>
-          <Text className="w-14 text-center text-xs font-medium text-gray-600">About</Text>
-          <Text className="w-14 text-center text-xs font-medium text-gray-600">Log Out</Text>
+        {/* Privacy & Security Section */}
+        <View style={{ backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 16 }}>Privacy & Security</Text>
+          <TouchableOpacity 
+            style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}
+            onPress={() => navigation.navigate('PrivacySettings')}
+          >
+            <ShieldCheckIcon size={24} color={colors.primary} style={{ marginRight: 12 }} />
+            <Text style={{ color: colors.text, fontSize: 16 }}>Privacy Settings</Text>
+          </TouchableOpacity>
         </View>
-      </View>
+
+        {/* About Section */}
+        <View style={{ backgroundColor: colors.card, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: 16 }}>About</Text>
+          <TouchableOpacity 
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            onPress={() => navigation.navigate('About')}
+          >
+            <InformationCircleIcon size={24} color={colors.primary} style={{ marginRight: 12 }} />
+            <Text style={{ color: colors.text, fontSize: 16 }}>About App</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Logout Button */}
+        <TouchableOpacity 
+          style={{ 
+            backgroundColor: colors.error,
+            borderRadius: 12,
+            padding: 16,
+            alignItems: 'center',
+            marginTop: 16
+          }}
+          onPress={() => navigation.navigate('Logout')}
+        >
+          <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '600' }}>Logout</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
