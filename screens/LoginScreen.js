@@ -16,6 +16,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   
   // Animation values
   const fadeAnim = new Animated.Value(0);
@@ -37,83 +38,91 @@ export default function LoginScreen() {
   }, []);
 
   const handleForgotPassword = async () => {
-    const trimmedEmail = email.trim();
-    if (trimmedEmail) {
-      setLoading(true);
-      try {
-        await sendPasswordResetEmail(auth, trimmedEmail);
-        console.log('Password reset email sent to:', trimmedEmail);
-        Alert.alert('Success', 'Password reset email sent. Check your inbox.');
-      } catch (err) {
-        console.error('Forgot password error:', { code: err.code, message: err.message });
-        let errorMessage = 'An error occurred. Please try again.';
-        switch (err.code) {
-          case 'auth/invalid-email':
-            errorMessage = 'Please enter a valid email address.';
-            break;
-          case 'auth/user-not-found':
-            errorMessage = 'No account found with this email.';
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = 'Too many requests. Please try again later.';
-            break;
-          case 'auth/missing-email':
-            errorMessage = 'Please provide an email address.';
-            break;
-          default:
-            errorMessage = err.message;
-        }
-        Alert.alert('Error', errorMessage);
-      } finally {
-        setLoading(false);
+    try {
+      if (!email.trim()) {
+        setErrors({ email: 'Please enter your email address' });
+        return;
       }
-    } else {
-      console.log('Email is empty for password reset');
-      Alert.alert('Error', 'Please enter your email address.');
+
+      setLoading(true);
+      await sendPasswordResetEmail(auth, email.trim());
+      Alert.alert(
+        'Password Reset',
+        'Password reset instructions have been sent to your email.',
+        [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+      );
+    } catch (error) {
+      console.error('Password reset error:', error);
+      let errorMessage = 'Failed to send reset email';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email format';
+          break;
+        default:
+          errorMessage = 'An error occurred. Please try again';
+      }
+      
+      setErrors({ submit: errorMessage });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleLogin = async () => {
-    const trimmedEmail = email.trim();
-    const trimmedPassword = password.trim();
-    if (trimmedEmail && trimmedPassword) {
+    try {
+      // Clear any previous errors
+      setErrors({});
       setLoading(true);
-      try {
-        await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
-        console.log('User logged in successfully with email:', trimmedEmail);
-        navigation.navigate('MainTabs', { screen: 'Home' });
-      } catch (err) {
-        console.error('Login error:', { code: err.code, message: err.message });
-        let errorMessage = 'An error occurred. Please try again.';
-        switch (err.code) {
-          case 'auth/invalid-email':
-            errorMessage = 'Please enter a valid email address.';
-            break;
-          case 'auth/user-not-found':
-            errorMessage = 'No account found with this email.';
-            break;
-          case 'auth/wrong-password':
-            errorMessage = 'Incorrect password. Please try again.';
-            break;
-          case 'auth/invalid-credential':
-            errorMessage = 'Invalid email or password.';
-            break;
-          case 'auth/user-disabled':
-            errorMessage = 'This account has been disabled. Contact support.';
-            break;
-          case 'auth/too-many-requests':
-            errorMessage = 'Too many login attempts. Please try again later.';
-            break;
-          default:
-            errorMessage = err.message;
-        }
-        Alert.alert('Error', errorMessage);
-      } finally {
-        setLoading(false);
+
+      // Validate email and password
+      if (!email.trim()) {
+        setErrors({ email: 'Email is required' });
+        return;
       }
-    } else {
-      console.log('Email or password is empty');
-      Alert.alert('Error', 'Please fill in both email and password fields.');
+      if (!password.trim()) {
+        setErrors({ password: 'Password is required' });
+        return;
+      }
+
+      // Attempt to sign in
+      const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
+      
+      if (userCredential.user) {
+        // Only navigate if we have a valid user
+        navigation.replace('MainTabs');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      let errorMessage = 'Invalid email or password';
+      
+      // Handle specific Firebase error codes
+      switch (error.code) {
+        case 'auth/invalid-credential':
+          errorMessage = 'Invalid email or password';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email format';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Please try again later';
+          break;
+        default:
+          errorMessage = 'An error occurred. Please try again';
+      }
+      
+      setErrors({ submit: errorMessage });
+    } finally {
+      setLoading(false);
     }
   };
 

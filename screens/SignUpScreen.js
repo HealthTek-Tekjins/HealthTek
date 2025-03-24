@@ -7,6 +7,8 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { useTheme } from '../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 const { width } = Dimensions.get('window');
 
@@ -118,40 +120,98 @@ export default function SignUpScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!handleValidation()) {
-      console.log('Validation failed:', errors);
-      return;
-    }
-
-    setLoading(true);
-    console.log('Attempting to sign up with email:', email);
     try {
+      // Clear any previous errors
+      setErrors({ name: '', surname: '', phoneNumber: '', email: '', password: '' });
+      
+      // Validate all fields
+      const validationErrors = { name: '', surname: '', phoneNumber: '', email: '', password: '' };
+      let hasErrors = false;
+
+      if (!name.trim()) {
+        validationErrors.name = 'Name is required';
+        hasErrors = true;
+      }
+      
+      if (!surname.trim()) {
+        validationErrors.surname = 'Surname is required';
+        hasErrors = true;
+      }
+      
+      if (!phoneNumber.trim()) {
+        validationErrors.phoneNumber = 'Phone number is required';
+        hasErrors = true;
+      } else if (!/^\d{10}$/.test(phoneNumber.trim())) {
+        validationErrors.phoneNumber = 'Phone number must be 10 digits';
+        hasErrors = true;
+      }
+      
+      if (!email.trim()) {
+        validationErrors.email = 'Email is required';
+        hasErrors = true;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        validationErrors.email = 'Invalid email format';
+        hasErrors = true;
+      }
+      
+      if (!password.trim()) {
+        validationErrors.password = 'Password is required';
+        hasErrors = true;
+      } else if (password.length < 6) {
+        validationErrors.password = 'Password must be at least 6 characters';
+        hasErrors = true;
+      }
+
+      // If there are validation errors, set them and return
+      if (hasErrors) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      setLoading(true);
+
+      // Create user with email and password
       const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password.trim());
-      const user = userCredential.user;
-      const displayName = `${name.trim()} ${surname.trim()}`;
-      await updateProfile(user, { displayName });
-      console.log('User created successfully:', user);
-      navigation.navigate('MainTabs', { screen: 'Login' });
-    } catch (err) {
-      console.error('Sign-up error:', { code: err.code, message: err.message });
-      let errorMessage = '';
-      switch (err.code) {
+      
+      // Update user profile with name and surname
+      await updateProfile(userCredential.user, {
+        displayName: `${name.trim()} ${surname.trim()}`,
+      });
+
+      // Store additional user data in Firestore
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        name: name.trim(),
+        surname: surname.trim(),
+        email: email.trim(),
+        phoneNumber: phoneNumber.trim(),
+        createdAt: serverTimestamp(),
+      });
+
+      // Navigate to main app
+      navigation.replace('MainTabs');
+    } catch (error) {
+      console.error('Sign up error:', error);
+      let errorMessage = 'An error occurred during sign up';
+      
+      // Handle specific Firebase error codes
+      switch (error.code) {
         case 'auth/email-already-in-use':
-          errorMessage = 'This email is already in use.';
+          errorMessage = 'This email is already registered';
           break;
         case 'auth/invalid-email':
-          errorMessage = 'Invalid email address.';
+          errorMessage = 'Invalid email format';
           break;
         case 'auth/weak-password':
-          errorMessage = 'Password is too weak.';
+          errorMessage = 'Password is too weak';
           break;
-        case 'auth/configuration-not-found':
-          errorMessage = 'Firebase configuration error. Please contact support.';
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error. Please check your connection';
           break;
         default:
-          errorMessage = 'An error occurred. Please try again.';
+          errorMessage = error.message || 'An error occurred during sign up';
       }
-      setErrors((prev) => ({ ...prev, email: errorMessage }));
+      
+      setErrors({ email: errorMessage });
     } finally {
       setLoading(false);
     }
