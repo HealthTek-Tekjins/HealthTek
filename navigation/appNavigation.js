@@ -28,6 +28,11 @@ import {
   Cog6ToothIcon,
   PlusIcon
 } from 'react-native-heroicons/solid';
+import MedicineScreen from '../screens/MedicineScreen';
+import CartScreen from '../screens/CartScreen';
+import DoctorLoginScreen from '../screens/DoctorLoginScreen';
+import DoctorSignUpScreen from '../screens/DoctorSignUpScreen';
+import DoctorDashboardScreen from '../screens/DoctorDashboardScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,19 +46,21 @@ function MainTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === 'Home') {
-            iconName = 'home';
+            iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Dashboard') {
             iconName = 'dashboard';
           } else if (route.name === 'Profile') {
-            iconName = 'person';
+            iconName = focused ? 'person' : 'person-outline';
           } else if (route.name === 'Settings') {
             iconName = 'settings';
+          } else if (route.name === 'Medicine') {
+            iconName = focused ? 'medical-services' : 'medical-services';
           }
           return (
             <MaterialIcons 
               name={iconName} 
-              size={28} 
-              color={focused ? '#FF69B4' : colors.textSecondary} 
+              size={size} 
+              color={color} 
             />
           );
         },
@@ -106,6 +113,13 @@ function MainTabs() {
         component={SettingsScreen}
         options={{
           tabBarLabel: 'Settings',
+        }}
+      />
+      <Tab.Screen 
+        name="Medicine" 
+        component={MedicineScreen}
+        options={{
+          tabBarLabel: 'Medicine',
         }}
       />
     </Tab.Navigator>
@@ -176,9 +190,6 @@ export default function AppNavigation() {
             headerShown: false,
             presentation: 'modal',
             animation: 'slide_from_bottom',
-            cardStyle: {
-              backgroundColor: colors.background,
-            },
           }} 
           component={HealthDataScreen} 
         />
@@ -188,9 +199,6 @@ export default function AppNavigation() {
             headerShown: false,
             presentation: 'modal',
             animation: 'slide_from_bottom',
-            cardStyle: {
-              backgroundColor: colors.background,
-            },
           }} 
           component={AppointmentScreen} 
         />
@@ -200,9 +208,6 @@ export default function AppNavigation() {
             headerShown: false,
             presentation: 'modal',
             animation: 'slide_from_bottom',
-            cardStyle: {
-              backgroundColor: colors.background,
-            },
           }} 
           component={EmergencyScreen} 
         />
@@ -220,6 +225,36 @@ export default function AppNavigation() {
           options={{
             headerShown: false,
             presentation: 'modal',
+          }}
+        />
+        <Stack.Screen 
+          name="Cart" 
+          component={CartScreen}
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+          }}
+        />
+        <Stack.Screen 
+          name="DoctorLogin" 
+          component={DoctorLoginScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen 
+          name="DoctorSignUp" 
+          component={DoctorSignUpScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen 
+          name="DoctorDashboard" 
+          component={DoctorDashboardScreen}
+          options={{
+            headerShown: false,
           }}
         />
       </Stack.Navigator>

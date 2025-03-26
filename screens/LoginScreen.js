@@ -244,6 +244,20 @@ export default function LoginScreen() {
               </Text>
             </TouchableOpacity>
           </View>
+
+
+          {/* Doctor Login Link */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('DoctorLogin')}
+            className="mt-4"
+          >
+            <Text 
+              style={{ color: '#FF69B4' }}
+              className="text-center text-base font-medium"
+            >
+              Are you a doctor? Login here
+            </Text>
+          </TouchableOpacity>
         </Animated.View>
       </LinearGradient>
     </SafeAreaView>
