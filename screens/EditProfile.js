@@ -3,26 +3,34 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
-import { 
-  UserIcon,
-  ArrowLeftIcon,
-  EnvelopeIcon,
-  PhoneIcon
-} from 'react-native-heroicons/solid';
+import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { auth } from '../config/firebase';
-import { updateProfile, updateEmail } from 'firebase/auth';
+import { auth, db } from '../config/firebase';
+import { updateProfile, updateEmail, signOut } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const EditProfile = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { user } = route.params;
   const { colors, isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    displayName: user?.displayName || '',
-    email: user?.email || '',
-    phoneNumber: user?.phoneNumber || '',
+    displayName: '',
+    email: '',
+    phoneNumber: '',
+    idNumber: '',
+    address: '',
+    medicalAid: {
+      provider: '',
+      number: '',
+      plan: '',
+      expiryDate: ''
+    },
+    nextOfKin: {
+      name: '',
+      surname: '',
+      phoneNumber: ''
+    }
   });
   const [errors, setErrors] = useState({});
 
@@ -31,7 +39,29 @@ const EditProfile = () => {
   const slideAnim = useRef(new Animated.Value(50)).current;
 
   useEffect(() => {
-    // Start animations
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      Alert.alert(
+        'Authentication Error',
+        'Please log in again to edit your profile.',
+        [{ text: 'OK', onPress: () => navigation.replace('Login') }]
+      );
+      return;
+    }
+
+    // Initialize form data with current user's basic info
+    setFormData(prevState => ({
+      ...prevState,
+      displayName: currentUser.displayName || '',
+      email: currentUser.email || '',
+      phoneNumber: currentUser.phoneNumber || ''
+    }));
+
+    fetchUserData(currentUser.uid);
+    startAnimations();
+  }, []);
+
+  const startAnimations = () => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -44,7 +74,77 @@ const EditProfile = () => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  };
+
+  const fetchUserData = async (userId) => {
+    try {
+      const userDetailsRef = doc(db, 'userDetails', userId);
+      const userDoc = await getDoc(userDetailsRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setFormData(prevState => ({
+          ...prevState,
+          idNumber: userData.idNumber || '',
+          address: userData.address || '',
+          medicalAid: {
+            provider: userData.medicalAid?.provider || '',
+            number: userData.medicalAid?.number || '',
+            plan: userData.medicalAid?.plan || '',
+            expiryDate: userData.medicalAid?.expiryDate || ''
+          },
+          nextOfKin: {
+            name: userData.nextOfKin?.name || '',
+            surname: userData.nextOfKin?.surname || '',
+            phoneNumber: userData.nextOfKin?.phoneNumber || ''
+          }
+        }));
+      } else {
+        // If the document doesn't exist, create it with default values
+        await setDoc(userDetailsRef, {
+          idNumber: '',
+          address: '',
+          medicalAid: {
+            provider: '',
+            number: '',
+            plan: '',
+            expiryDate: ''
+          },
+          nextOfKin: {
+            name: '',
+            surname: '',
+            phoneNumber: ''
+          },
+          createdAt: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      if (error.code === 'permission-denied') {
+        Alert.alert(
+          'Access Denied',
+          'You do not have permission to view this profile. Please log out and log in again.',
+          [
+            {
+              text: 'Log Out',
+              onPress: async () => {
+                try {
+                  await signOut(auth);
+                  navigation.replace('Login');
+                } catch (e) {
+                  console.error('Error signing out:', e);
+                }
+              },
+              style: 'destructive'
+            },
+            { text: 'OK', style: 'cancel' }
+          ]
+        );
+      } else {
+        Alert.alert('Error', 'Failed to load profile data. Please try again.');
+      }
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -59,6 +159,31 @@ const EditProfile = () => {
       newErrors.email = 'Please enter a valid email';
     }
 
+    // ID Number validation (13 digits for South African ID)
+    if (formData.idNumber && formData.idNumber.length !== 13) {
+      newErrors.idNumber = 'ID number must be 13 digits';
+    } else if (formData.idNumber && !/^\d+$/.test(formData.idNumber)) {
+      newErrors.idNumber = 'ID number must contain only digits';
+    }
+
+    // Medical Aid validation
+    if (formData.medicalAid.provider && !formData.medicalAid.number) {
+      newErrors.medicalAidNumber = 'Medical aid number is required if provider is specified';
+    }
+
+    // Next of Kin validation
+    if (formData.nextOfKin.name || formData.nextOfKin.surname || formData.nextOfKin.phoneNumber) {
+      if (!formData.nextOfKin.name.trim()) {
+        newErrors.nextOfKinName = 'Next of kin name is required';
+      }
+      if (!formData.nextOfKin.surname.trim()) {
+        newErrors.nextOfKinSurname = 'Next of kin surname is required';
+      }
+      if (!formData.nextOfKin.phoneNumber.trim()) {
+        newErrors.nextOfKinPhone = 'Next of kin phone number is required';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -71,46 +196,103 @@ const EditProfile = () => {
       const currentUser = auth.currentUser;
       
       if (!currentUser) {
-        throw new Error('User not authenticated');
+        Alert.alert(
+          'Authentication Error',
+          'Please log in again to update your profile.',
+          [{ text: 'OK', onPress: () => navigation.replace('Login') }]
+        );
+        return;
       }
 
-      // Update display name and photo URL
+      // Update display name in Firebase Auth
       await updateProfile(currentUser, {
         displayName: formData.displayName,
       });
 
-      // Update email if changed
+      // Only update email if it has changed
       if (formData.email !== currentUser.email) {
         await updateEmail(currentUser, formData.email);
       }
 
+      // Save additional user details to Firestore
+      const userDetailsRef = doc(db, 'userDetails', currentUser.uid);
+      await setDoc(userDetailsRef, {
+        idNumber: formData.idNumber || '',
+        address: formData.address || '',
+        medicalAid: {
+          provider: formData.medicalAid.provider || '',
+          number: formData.medicalAid.number || '',
+          plan: formData.medicalAid.plan || '',
+          expiryDate: formData.medicalAid.expiryDate || ''
+        },
+        nextOfKin: {
+          name: formData.nextOfKin.name || '',
+          surname: formData.nextOfKin.surname || '',
+          phoneNumber: formData.nextOfKin.phoneNumber || ''
+        },
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+
       Alert.alert(
         'Success',
         'Profile updated successfully',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.goBack()
+        [{ 
+          text: 'OK', 
+          onPress: () => {
+            navigation.goBack();
+            if (route.params?.onUpdate) {
+              route.params.onUpdate(currentUser);
+            }
           }
-        ]
+        }]
       );
     } catch (error) {
       console.error('Error updating profile:', error);
-      Alert.alert('Error', error.message || 'Failed to update profile. Please try again.');
+      let errorMessage = 'Failed to update profile. Please try again.';
+      
+      if (error.code === 'auth/requires-recent-login') {
+        Alert.alert(
+          'Session Expired',
+          'Please log in again to update your profile.',
+          [{ text: 'OK', onPress: () => navigation.replace('Login') }]
+        );
+        return;
+      }
+      
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
+  const renderInput = (label, value, onChangeText, icon, keyboardType = 'default', error = null, isDisabled = false) => (
+    <View className="mb-4">
+      <View className="flex-row items-center space-x-2 mb-2">
+        <MaterialIcons name={icon} size={20} color="#FF69B4" />
+        <Text style={{ color: colors.text }} className="text-base">{label}</Text>
+      </View>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={`Enter ${label.toLowerCase()}`}
+        placeholderTextColor={colors.textSecondary}
+        keyboardType={keyboardType}
+        editable={!isDisabled}
+        className={`${isDisabled ? 'bg-gray-100 dark:bg-gray-700' : 'bg-white dark:bg-gray-800'} rounded-xl px-4 py-3 text-gray-900 dark:text-white`}
+      />
+      {error && <Text className="text-red-500 text-sm mt-1">{error}</Text>}
+    </View>
+  );
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <LinearGradient
-        colors={isDarkMode ? ['#1a1a1a', '#2d2d2d'] : ['#ffffff', '#f0f0f0']}
+        colors={isDarkMode ? ['#1a1a1a', '#2d2d2d'] : ['#f8f8f8', '#ffffff']}
         style={{ flex: 1 }}
       >
-        <ScrollView className="flex-1">
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <Animated.View 
-            className="p-4"
+            className="p-6"
             style={{
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
@@ -123,7 +305,7 @@ const EditProfile = () => {
                 className="p-2 rounded-full mr-4"
                 style={{ backgroundColor: colors.card }}
               >
-                <ArrowLeftIcon size={24} color="#FF69B4" />
+                <MaterialIcons name="arrow-back" size={24} color="#FF69B4" />
               </TouchableOpacity>
               <Text style={{ color: colors.text }} className="text-2xl font-bold">
                 Edit Profile
@@ -132,64 +314,100 @@ const EditProfile = () => {
 
             {/* Form */}
             <View className="space-y-6">
-              {/* Personal Information Section */}
+              {/* Basic Information Section */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-4">
-                  Personal Information
+                  Basic Information
                 </Text>
                 
-                {/* Display Name Input */}
-                <View className="mb-4">
-                  <View className="flex-row items-center space-x-2 mb-2">
-                    <UserIcon size={20} color="#FF69B4" />
-                    <Text style={{ color: colors.text }} className="text-base">Display Name</Text>
-                  </View>
-                  <TextInput
-                    value={formData.displayName}
-                    onChangeText={(text) => setFormData({ ...formData, displayName: text })}
-                    placeholder="Enter your display name"
-                    placeholderTextColor={colors.textSecondary}
-                    className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
-                  />
-                  {errors.displayName && (
-                    <Text className="text-red-500 text-sm mt-1">{errors.displayName}</Text>
-                  )}
-                </View>
+                {renderInput('Display Name', formData.displayName, 
+                  (text) => setFormData({ ...formData, displayName: text }), 
+                  'person', 'default', errors.displayName)}
 
-                {/* Email Input */}
-                <View className="mb-4">
-                  <View className="flex-row items-center space-x-2 mb-2">
-                    <EnvelopeIcon size={20} color="#FF69B4" />
-                    <Text style={{ color: colors.text }} className="text-base">Email</Text>
-                  </View>
-                  <TextInput
-                    value={formData.email}
-                    onChangeText={(text) => setFormData({ ...formData, email: text })}
-                    placeholder="Enter your email"
-                    placeholderTextColor={colors.textSecondary}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
-                  />
-                  {errors.email && (
-                    <Text className="text-red-500 text-sm mt-1">{errors.email}</Text>
-                  )}
-                </View>
+                {renderInput('Email', formData.email,
+                  (text) => setFormData({ ...formData, email: text }),
+                  'email', 'email-address', errors.email)}
 
-                {/* Phone Input (read-only since phone number updates require additional verification) */}
-                <View className="mb-4">
-                  <View className="flex-row items-center space-x-2 mb-2">
-                    <PhoneIcon size={20} color="#FF69B4" />
-                    <Text style={{ color: colors.text }} className="text-base">Phone</Text>
-                  </View>
-                  <TextInput
-                    value={formData.phoneNumber}
-                    editable={false}
-                    placeholder="Phone number can only be updated through phone verification"
-                    placeholderTextColor={colors.textSecondary}
-                    className="bg-gray-100 dark:bg-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
-                  />
-                </View>
+                {renderInput('Phone', formData.phoneNumber, null,
+                  'phone', 'phone-pad', null, true)}
+              </View>
+
+              {/* ID and Address Section */}
+              <View>
+                <Text style={{ color: colors.text }} className="text-lg font-semibold mb-4">
+                  Identification & Address
+                </Text>
+
+                {renderInput('ID Number', formData.idNumber,
+                  (text) => setFormData({ ...formData, idNumber: text }),
+                  'badge', 'numeric', errors.idNumber)}
+
+                {renderInput('Address', formData.address,
+                  (text) => setFormData({ ...formData, address: text }),
+                  'location-on', 'default', errors.address)}
+              </View>
+
+              {/* Medical Aid Section */}
+              <View>
+                <Text style={{ color: colors.text }} className="text-lg font-semibold mb-4">
+                  Medical Aid Information
+                </Text>
+
+                {renderInput('Medical Aid Provider', formData.medicalAid.provider,
+                  (text) => setFormData({
+                    ...formData,
+                    medicalAid: { ...formData.medicalAid, provider: text }
+                  }),
+                  'local-hospital')}
+
+                {renderInput('Medical Aid Number', formData.medicalAid.number,
+                  (text) => setFormData({
+                    ...formData,
+                    medicalAid: { ...formData.medicalAid, number: text }
+                  }),
+                  'credit-card', 'default', errors.medicalAidNumber)}
+
+                {renderInput('Medical Aid Plan', formData.medicalAid.plan,
+                  (text) => setFormData({
+                    ...formData,
+                    medicalAid: { ...formData.medicalAid, plan: text }
+                  }),
+                  'description')}
+
+                {renderInput('Medical Aid Expiry Date', formData.medicalAid.expiryDate,
+                  (text) => setFormData({
+                    ...formData,
+                    medicalAid: { ...formData.medicalAid, expiryDate: text }
+                  }),
+                  'event', 'default', null)}
+              </View>
+
+              {/* Next of Kin Section */}
+              <View>
+                <Text style={{ color: colors.text }} className="text-lg font-semibold mb-4">
+                  Next of Kin
+                </Text>
+
+                {renderInput('Next of Kin Name', formData.nextOfKin.name,
+                  (text) => setFormData({
+                    ...formData,
+                    nextOfKin: { ...formData.nextOfKin, name: text }
+                  }),
+                  'person', 'default', errors.nextOfKinName)}
+
+                {renderInput('Next of Kin Surname', formData.nextOfKin.surname,
+                  (text) => setFormData({
+                    ...formData,
+                    nextOfKin: { ...formData.nextOfKin, surname: text }
+                  }),
+                  'person', 'default', errors.nextOfKinSurname)}
+
+                {renderInput('Next of Kin Phone', formData.nextOfKin.phoneNumber,
+                  (text) => setFormData({
+                    ...formData,
+                    nextOfKin: { ...formData.nextOfKin, phoneNumber: text }
+                  }),
+                  'phone', 'phone-pad', errors.nextOfKinPhone)}
               </View>
 
               {/* Submit Button */}
@@ -206,7 +424,7 @@ const EditProfile = () => {
                   elevation: 5,
                 }}
               >
-                <Text className="text-white text-center font-semibold text-lg">
+                <Text className="text-white text-center font-bold text-lg">
                   {loading ? 'Updating...' : 'Save Changes'}
                 </Text>
               </TouchableOpacity>

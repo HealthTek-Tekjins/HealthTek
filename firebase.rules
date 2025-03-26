@@ -1,24 +1,32 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper function to check if user is authenticated
-    function isAuthenticated() {
-      return request.auth != null;
+    // Allow users to read and write their own userDetails document
+    match /userDetails/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-
-    // Development rules for healthData collection
-    match /healthData/{document=**} {
-      allow read, write: if isAuthenticated();
+    
+    // Allow users to read and write their own appointments
+    match /appointments/{appointmentId} {
+      allow read, write: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
     }
-
-    // Development rules for appointments collection
-    match /appointments/{document=**} {
-      allow read, write: if isAuthenticated();
+    
+    // Allow users to read and write their own emergency contacts
+    match /emergencyContacts/{contactId} {
+      allow read, write: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
     }
-
-    // Development rules for emergencyContacts collection
-    match /emergencyContacts/{document=**} {
-      allow read, write: if isAuthenticated();
+    
+    // Allow users to read and write their own health data
+    match /healthData/{dataId} {
+      allow read, write: if request.auth != null && 
+        (resource == null || resource.data.userId == request.auth.uid);
+    }
+    
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 } 

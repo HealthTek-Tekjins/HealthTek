@@ -179,12 +179,26 @@ export default function SignUpScreen() {
       });
 
       // Store additional user data in Firestore
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
+      await setDoc(doc(db, 'userDetails', userCredential.user.uid), {
         name: name.trim(),
         surname: surname.trim(),
         email: email.trim(),
         phoneNumber: phoneNumber.trim(),
         createdAt: serverTimestamp(),
+        // Initialize other fields with empty values
+        idNumber: '',
+        address: '',
+        medicalAid: {
+          provider: '',
+          number: '',
+          plan: '',
+          expiryDate: ''
+        },
+        nextOfKin: {
+          name: '',
+          surname: '',
+          phoneNumber: ''
+        }
       });
 
       // Navigate to main app
