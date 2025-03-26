@@ -10,6 +10,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import EditProfile from '../screens/EditProfile';
 import PrivacySettingsScreen from '../screens/PrivacySettingsScreen';
 import AboutScreen from '../screens/AboutScreen';
 import LogoutScreen from '../screens/LogoutScreen';
@@ -41,11 +42,11 @@ function MainTabs() {
           let iconName;
           if (route.name === 'Home') {
             iconName = 'home';
-          } else if (route.name === 'Settings') {
-            iconName = 'person';
           } else if (route.name === 'Dashboard') {
             iconName = 'dashboard';
           } else if (route.name === 'Profile') {
+            iconName = 'person';
+          } else if (route.name === 'Settings') {
             iconName = 'settings';
           }
           return (
@@ -94,14 +95,14 @@ function MainTabs() {
         }}
       />
       <Tab.Screen 
-        name="Settings" 
+        name="Profile" 
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
         }}
       />
       <Tab.Screen 
-        name="Profile" 
+        name="Settings" 
         component={SettingsScreen}
         options={{
           tabBarLabel: 'Settings',
@@ -135,6 +136,15 @@ export default function AppNavigation() {
         <Stack.Screen name="Login" options={{ headerShown: false }} component={LoginScreen} />
         <Stack.Screen name="SignUp" options={{ headerShown: false }} component={SignUpScreen} />
         <Stack.Screen name="MainTabs" options={{ headerShown: false }} component={MainTabs} />
+        <Stack.Screen 
+          name="EditProfile" 
+          options={{ 
+            headerShown: false,
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+          }} 
+          component={EditProfile} 
+        />
         <Stack.Screen 
           name="PrivacySettings" 
           options={{ 

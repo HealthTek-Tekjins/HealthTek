@@ -55,7 +55,7 @@ export default function WelcomeScreen() {
             className="items-center"
           >
             <Image
-              source={require('../assets/images/TJ+Logo.jpg')}
+              source={require('../assets/images/RB.png')}
               style={{
                 width: width * 0.7,
                 height: width * 0.7,

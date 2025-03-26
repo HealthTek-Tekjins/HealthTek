@@ -243,7 +243,7 @@ export default function SignUpScreen() {
             }}
           >
             <Image
-              source={require('../assets/images/TJ+Logo.jpg')}
+              source={require('../assets/images/RB.png')}
               style={{ 
                 width: width * 0.6, 
                 height: width * 0.6, 
