@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../context/ThemeContext';
+import { MaterialIcons } from '@expo/vector-icons';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
@@ -17,22 +18,14 @@ import LogoutScreen from '../screens/LogoutScreen';
 import HealthDataScreen from '../screens/HealthDataScreen';
 import AppointmentScreen from '../screens/AppointmentScreen';
 import EmergencyScreen from '../screens/EmergencyScreen';
-import { MaterialIcons } from '@expo/vector-icons';
 import AddHealthData from '../screens/AddHealthData';
 import AddAppointment from '../screens/AddAppointment';
-import { 
-  HomeIcon, 
-  CalendarIcon, 
-  ChartBarIcon, 
-  UserIcon, 
-  Cog6ToothIcon,
-  PlusIcon
-} from 'react-native-heroicons/solid';
 import MedicineScreen from '../screens/MedicineScreen';
 import CartScreen from '../screens/CartScreen';
 import DoctorLoginScreen from '../screens/DoctorLoginScreen';
 import DoctorSignUpScreen from '../screens/DoctorSignUpScreen';
 import DoctorDashboardScreen from '../screens/DoctorDashboardScreen';
+import AnalyticsScreen from '../screens/AnalyticsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -46,21 +39,23 @@ function MainTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home-outline';
+            iconName = 'home';
           } else if (route.name === 'Dashboard') {
             iconName = 'dashboard';
           } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
+            iconName = 'person';
           } else if (route.name === 'Settings') {
             iconName = 'settings';
           } else if (route.name === 'Medicine') {
-            iconName = focused ? 'medical-services' : 'medical-services';
+            iconName = 'medical-services';
+          } else if (route.name === 'Analytics') {
+            iconName = 'analytics';
           }
           return (
             <MaterialIcons 
               name={iconName} 
-              size={size} 
-              color={color} 
+              size={28} 
+              color={focused ? '#FF69B4' : colors.textSecondary} 
             />
           );
         },
@@ -102,6 +97,20 @@ function MainTabs() {
         }}
       />
       <Tab.Screen 
+        name="Analytics" 
+        component={AnalyticsScreen}
+        options={{
+          tabBarLabel: 'Analytics',
+        }}
+      />
+      <Tab.Screen 
+        name="Medicine" 
+        component={MedicineScreen}
+        options={{
+          tabBarLabel: 'Medicine',
+        }}
+      />
+      <Tab.Screen 
         name="Profile" 
         component={ProfileScreen}
         options={{
@@ -113,13 +122,6 @@ function MainTabs() {
         component={SettingsScreen}
         options={{
           tabBarLabel: 'Settings',
-        }}
-      />
-      <Tab.Screen 
-        name="Medicine" 
-        component={MedicineScreen}
-        options={{
-          tabBarLabel: 'Medicine',
         }}
       />
     </Tab.Navigator>

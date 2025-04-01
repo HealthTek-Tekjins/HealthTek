@@ -53,10 +53,13 @@ const MedicineScreen = () => {
     Alert.alert('Success', 'Added to cart');
   };
 
-  const filteredMedicines = medicines.filter(medicine =>
-    medicine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    medicine.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredMedicines = medicines.filter(medicine => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      medicine.name.toLowerCase().includes(searchLower) ||
+      (medicine.description && medicine.description.toLowerCase().includes(searchLower))
+    );
+  });
 
   const renderMedicineCard = (medicine) => (
     <View 
@@ -83,13 +86,19 @@ const MedicineScreen = () => {
             style={{ color: isDarkMode ? '#B0B0B0' : '#666666' }}
             className="text-sm mb-2"
           >
-            {medicine.description}
+            {medicine.description || 'No description available'}
           </Text>
           <Text 
             style={{ color: '#FF69B4' }}
             className="text-base font-semibold"
           >
             R{medicine.price.toFixed(2)}
+          </Text>
+          <Text 
+            style={{ color: isDarkMode ? '#B0B0B0' : '#666666' }}
+            className="text-sm mt-1"
+          >
+            Stock: {medicine.stock}
           </Text>
         </View>
         <TouchableOpacity
@@ -183,7 +192,7 @@ const MedicineScreen = () => {
                   style={{ color: colors.text }}
                   className="text-lg text-center mt-4"
                 >
-                  No medicines found
+                  {searchQuery ? 'No medicines found matching your search' : 'No medicines available'}
                 </Text>
               </View>
             )}

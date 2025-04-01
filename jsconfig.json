@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "@screens/*": ["./screens/*"],
+      "@navigation/*": ["./navigation/*"],
+      "@context/*": ["./context/*"],
+      "@config/*": ["./config/*"],
+      "@assets/*": ["./assets/*"],
+      "@services/*": ["./services/*"],
+      "@hooks/*": ["./hooks/*"],
+      "@firebase/*": ["./firebase/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+} 
