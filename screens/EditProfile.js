@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Animated, Switch } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -7,12 +7,16 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { auth, db } from '../config/firebase';
 import { updateProfile, updateEmail, signOut } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../translations';
 
 const EditProfile = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { colors, isDarkMode } = useTheme();
+  const { colors, isDarkMode, toggleTheme } = useTheme();
+  const { currentLanguage } = useLanguage();
+  const t = translations[currentLanguage];
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     displayName: '',
@@ -308,16 +312,16 @@ const EditProfile = () => {
                 <MaterialIcons name="arrow-back" size={24} color="#FF69B4" />
               </TouchableOpacity>
               <Text style={{ color: colors.text }} className="text-2xl font-bold">
-                Edit Profile
+                {t.editProfile}
               </Text>
             </View>
 
             {/* Form */}
             <View className="space-y-6">
-              {/* Basic Information Section */}
+              {/* Personal Information Section */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-4">
-                  Basic Information
+                  {t.personalInfo}
                 </Text>
                 
                 {renderInput('Display Name', formData.displayName, 
@@ -330,13 +334,6 @@ const EditProfile = () => {
 
                 {renderInput('Phone', formData.phoneNumber, null,
                   'phone', 'phone-pad', null, true)}
-              </View>
-
-              {/* ID and Address Section */}
-              <View>
-                <Text style={{ color: colors.text }} className="text-lg font-semibold mb-4">
-                  Identification & Address
-                </Text>
 
                 {renderInput('ID Number', formData.idNumber,
                   (text) => setFormData({ ...formData, idNumber: text }),
@@ -350,7 +347,7 @@ const EditProfile = () => {
               {/* Medical Aid Section */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-4">
-                  Medical Aid Information
+                  {t.medicalAidInfo}
                 </Text>
 
                 {renderInput('Medical Aid Provider', formData.medicalAid.provider,
@@ -385,7 +382,7 @@ const EditProfile = () => {
               {/* Next of Kin Section */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-4">
-                  Next of Kin
+                  {t.nextOfKin}
                 </Text>
 
                 {renderInput('Next of Kin Name', formData.nextOfKin.name,
@@ -425,7 +422,7 @@ const EditProfile = () => {
                 }}
               >
                 <Text className="text-white text-center font-bold text-lg">
-                  {loading ? 'Updating...' : 'Save Changes'}
+                  {loading ? 'Updating...' : t.save}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -434,6 +431,24 @@ const EditProfile = () => {
       </LinearGradient>
     </SafeAreaView>
   );
+};
+
+const styles = {
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+  },
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuItemText: {
+    fontSize: 16,
+    marginLeft: 12,
+  },
 };
 
 export default EditProfile; 

@@ -8,10 +8,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { auth, db } from '../config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../translations';
+import LanguageSelector from '../components/LanguageSelector';
 
 const DoctorSignUpScreen = () => {
   const navigation = useNavigation();
   const { colors, isDarkMode } = useTheme();
+  const { currentLanguage } = useLanguage();
+  const t = translations[currentLanguage];
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -21,13 +26,14 @@ const DoctorSignUpScreen = () => {
     specialization: '',
     licenseNumber: '',
     phoneNumber: '',
-    hospitalAffiliation: ''
+    hospitalAffiliation: '',
+    gender: 'male'
   });
 
   const handleSignUp = async () => {
     // Validate form data
     if (!formData.fullName || !formData.email || !formData.password || !formData.confirmPassword ||
-        !formData.specialization || !formData.licenseNumber || !formData.phoneNumber) {
+        !formData.specialization || !formData.licenseNumber || !formData.phoneNumber || !formData.gender) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
@@ -55,6 +61,7 @@ const DoctorSignUpScreen = () => {
         licenseNumber: formData.licenseNumber,
         phoneNumber: formData.phoneNumber,
         hospitalAffiliation: formData.hospitalAffiliation || '',
+        gender: formData.gender,
         createdAt: new Date().toISOString(),
         role: 'doctor'
       });
@@ -86,26 +93,28 @@ const DoctorSignUpScreen = () => {
               style={{ color: colors.text }}
               className="text-3xl font-bold mt-4 text-center"
             >
-              Doctor Sign Up
+              {t.doctorSignUp}
             </Text>
             <Text 
               style={{ color: isDarkMode ? '#B0B0B0' : '#666666' }}
               className="text-base mt-2 text-center"
             >
-              Create your doctor account
+              {t.createDoctorAccount}
             </Text>
           </View>
+
+          <LanguageSelector />
 
           {/* Sign Up Form */}
           <View className="space-y-4">
             <View>
               <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
-                Full Name *
+                {t.fullName} *
               </Text>
               <TextInput
                 value={formData.fullName}
                 onChangeText={(text) => setFormData({ ...formData, fullName: text })}
-                placeholder="Enter your full name"
+                placeholder={t.enterFullName}
                 placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
                 className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
                 style={{ color: colors.text }}
@@ -114,12 +123,88 @@ const DoctorSignUpScreen = () => {
 
             <View>
               <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
-                Email *
+                {t.gender} *
+              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: formData.gender === 'male' ? '#FF69B4' : isDarkMode ? '#1f2937' : 'white',
+                    padding: 15,
+                    borderRadius: 12,
+                    marginRight: 5,
+                    borderWidth: 1,
+                    borderColor: isDarkMode ? '#374151' : '#e5e7eb',
+                  }}
+                  onPress={() => setFormData({ ...formData, gender: 'male' })}
+                >
+                  <Text
+                    style={{
+                      color: formData.gender === 'male' ? 'white' : colors.text,
+                      textAlign: 'center',
+                      fontWeight: formData.gender === 'male' ? 'bold' : 'normal',
+                    }}
+                  >
+                    {t.male}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: formData.gender === 'female' ? '#FF69B4' : isDarkMode ? '#1f2937' : 'white',
+                    padding: 15,
+                    borderRadius: 12,
+                    marginHorizontal: 5,
+                    borderWidth: 1,
+                    borderColor: isDarkMode ? '#374151' : '#e5e7eb',
+                  }}
+                  onPress={() => setFormData({ ...formData, gender: 'female' })}
+                >
+                  <Text
+                    style={{
+                      color: formData.gender === 'female' ? 'white' : colors.text,
+                      textAlign: 'center',
+                      fontWeight: formData.gender === 'female' ? 'bold' : 'normal',
+                    }}
+                  >
+                    {t.female}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: formData.gender === 'other' ? '#FF69B4' : isDarkMode ? '#1f2937' : 'white',
+                    padding: 15,
+                    borderRadius: 12,
+                    marginLeft: 5,
+                    borderWidth: 1,
+                    borderColor: isDarkMode ? '#374151' : '#e5e7eb',
+                  }}
+                  onPress={() => setFormData({ ...formData, gender: 'other' })}
+                >
+                  <Text
+                    style={{
+                      color: formData.gender === 'other' ? 'white' : colors.text,
+                      textAlign: 'center',
+                      fontWeight: formData.gender === 'other' ? 'bold' : 'normal',
+                    }}
+                  >
+                    {t.other}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View>
+              <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
+                {t.email} *
               </Text>
               <TextInput
                 value={formData.email}
                 onChangeText={(text) => setFormData({ ...formData, email: text })}
-                placeholder="Enter your email"
+                placeholder={t.enterEmail}
                 placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -130,12 +215,12 @@ const DoctorSignUpScreen = () => {
 
             <View>
               <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
-                Password *
+                {t.password} *
               </Text>
               <TextInput
                 value={formData.password}
                 onChangeText={(text) => setFormData({ ...formData, password: text })}
-                placeholder="Enter your password"
+                placeholder={t.enterPassword}
                 placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
                 secureTextEntry
                 className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
@@ -145,12 +230,12 @@ const DoctorSignUpScreen = () => {
 
             <View>
               <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
-                Confirm Password *
+                {t.confirmPassword} *
               </Text>
               <TextInput
                 value={formData.confirmPassword}
                 onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
-                placeholder="Confirm your password"
+                placeholder={t.confirmYourPassword}
                 placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
                 secureTextEntry
                 className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
@@ -160,12 +245,12 @@ const DoctorSignUpScreen = () => {
 
             <View>
               <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
-                Specialization *
+                {t.specialization} *
               </Text>
               <TextInput
                 value={formData.specialization}
                 onChangeText={(text) => setFormData({ ...formData, specialization: text })}
-                placeholder="Enter your specialization"
+                placeholder={t.enterSpecialization}
                 placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
                 className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
                 style={{ color: colors.text }}
@@ -174,12 +259,12 @@ const DoctorSignUpScreen = () => {
 
             <View>
               <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
-                License Number *
+                {t.licenseNumber} *
               </Text>
               <TextInput
                 value={formData.licenseNumber}
                 onChangeText={(text) => setFormData({ ...formData, licenseNumber: text })}
-                placeholder="Enter your medical license number"
+                placeholder={t.enterLicenseNumber}
                 placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
                 className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
                 style={{ color: colors.text }}
@@ -188,12 +273,12 @@ const DoctorSignUpScreen = () => {
 
             <View>
               <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
-                Phone Number *
+                {t.phoneNumber} *
               </Text>
               <TextInput
                 value={formData.phoneNumber}
                 onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
-                placeholder="Enter your phone number"
+                placeholder={t.enterPhoneNumber}
                 placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
                 keyboardType="phone-pad"
                 className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
@@ -203,12 +288,12 @@ const DoctorSignUpScreen = () => {
 
             <View>
               <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
-                Hospital Affiliation
+                {t.hospitalAffiliation}
               </Text>
               <TextInput
                 value={formData.hospitalAffiliation}
                 onChangeText={(text) => setFormData({ ...formData, hospitalAffiliation: text })}
-                placeholder="Enter your hospital affiliation (optional)"
+                placeholder={t.enterHospitalAffiliation}
                 placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
                 className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
                 style={{ color: colors.text }}
@@ -225,7 +310,7 @@ const DoctorSignUpScreen = () => {
                 <ActivityIndicator color="white" />
               ) : (
                 <Text className="text-white text-center font-bold text-lg">
-                  Sign Up
+                  {t.signUp}
                 </Text>
               )}
             </TouchableOpacity>
@@ -240,7 +325,7 @@ const DoctorSignUpScreen = () => {
               style={{ color: '#FF69B4' }}
               className="text-center text-base font-medium"
             >
-              Already have an account? Login
+              {t.alreadyHaveAccount} {t.login}
             </Text>
           </TouchableOpacity>
         </ScrollView>

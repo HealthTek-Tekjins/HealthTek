@@ -9,6 +9,9 @@ import { useTheme } from '../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../translations';
+import LanguageSelector from '../components/LanguageSelector';
 
 const { width } = Dimensions.get('window');
 
@@ -20,12 +23,16 @@ export default function SignUpScreen() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [gender, setGender] = useState('male');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ name: '', surname: '', phoneNumber: '', email: '', password: '' });
+  const [errors, setErrors] = useState({ name: '', surname: '', phoneNumber: '', email: '', password: '', gender: '' });
 
   // Animation values
   const fadeAnim = new Animated.Value(0);
   const slideAnim = new Animated.Value(50);
+
+  const { currentLanguage } = useLanguage();
+  const t = translations[currentLanguage];
 
   useEffect(() => {
     Animated.parallel([
@@ -66,7 +73,7 @@ export default function SignUpScreen() {
     const trimmedPhoneNumber = phoneNumber.trim();
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
-    let newErrors = { name: '', surname: '', phoneNumber: '', email: '', password: '' };
+    let newErrors = { name: '', surname: '', phoneNumber: '', email: '', password: '', gender: '' };
     let isValid = true;
 
     if (!trimmedName) {
@@ -115,6 +122,11 @@ export default function SignUpScreen() {
       }
     }
 
+    if (!gender) {
+      newErrors.gender = 'Gender is required';
+      isValid = false;
+    }
+
     setErrors(newErrors);
     return isValid;
   };
@@ -122,10 +134,10 @@ export default function SignUpScreen() {
   const handleSubmit = async () => {
     try {
       // Clear any previous errors
-      setErrors({ name: '', surname: '', phoneNumber: '', email: '', password: '' });
+      setErrors({ name: '', surname: '', phoneNumber: '', email: '', password: '', gender: '' });
       
       // Validate all fields
-      const validationErrors = { name: '', surname: '', phoneNumber: '', email: '', password: '' };
+      const validationErrors = { name: '', surname: '', phoneNumber: '', email: '', password: '', gender: '' };
       let hasErrors = false;
 
       if (!name.trim()) {
@@ -162,6 +174,11 @@ export default function SignUpScreen() {
         hasErrors = true;
       }
 
+      if (!gender) {
+        validationErrors.gender = 'Gender is required';
+        hasErrors = true;
+      }
+
       // If there are validation errors, set them and return
       if (hasErrors) {
         setErrors(validationErrors);
@@ -184,6 +201,7 @@ export default function SignUpScreen() {
         surname: surname.trim(),
         email: email.trim(),
         phoneNumber: phoneNumber.trim(),
+        gender: gender,
         createdAt: serverTimestamp(),
         // Initialize other fields with empty values
         idNumber: '',
@@ -273,8 +291,10 @@ export default function SignUpScreen() {
             />
 
             <Text style={{ color: colors.text }} className="text-2xl font-bold text-center mb-8">
-              Create Account
+              {t.createAccount}
             </Text>
+
+            <LanguageSelector />
 
             <View style={{ width: '85%', marginBottom: 20 }}>
               <TextInput
@@ -285,7 +305,7 @@ export default function SignUpScreen() {
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}
-                placeholder="Enter Name"
+                placeholder={t.enterName}
                 placeholderTextColor={colors.textSecondary}
                 value={name}
                 onChangeText={(value) => setName(value)}
@@ -304,7 +324,7 @@ export default function SignUpScreen() {
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}
-                placeholder="Enter Surname"
+                placeholder={t.enterSurname}
                 placeholderTextColor={colors.textSecondary}
                 value={surname}
                 onChangeText={(value) => setSurname(value)}
@@ -323,7 +343,7 @@ export default function SignUpScreen() {
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}
-                placeholder="Enter Phone Number (e.g., 1234567890)"
+                placeholder={t.enterPhoneNumber}
                 placeholderTextColor={colors.textSecondary}
                 value={phoneNumber}
                 onChangeText={(value) => setPhoneNumber(value)}
@@ -343,7 +363,7 @@ export default function SignUpScreen() {
                   borderWidth: 1,
                   borderColor: colors.border,
                 }}
-                placeholder="Email"
+                placeholder={t.enterEmail}
                 placeholderTextColor={colors.textSecondary}
                 value={email}
                 onChangeText={(value) => setEmail(value)}
@@ -364,13 +384,90 @@ export default function SignUpScreen() {
                   borderColor: colors.border,
                 }}
                 secureTextEntry
-                placeholder="Password"
+                placeholder={t.enterPassword}
                 placeholderTextColor={colors.textSecondary}
                 value={password}
                 onChangeText={(value) => setPassword(value)}
                 editable={!loading}
               />
               {errors.password ? <Text style={{ color: colors.error, marginTop: 4 }}>{errors.password}</Text> : null}
+            </View>
+
+            <View style={{ width: '85%', marginBottom: 20 }}>
+              <Text style={{ color: colors.text }} className="text-base mb-2 font-medium">
+                {t.gender} *
+              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: gender === 'male' ? colors.primary : colors.card,
+                    padding: 15,
+                    borderRadius: 12,
+                    marginRight: 5,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                  }}
+                  onPress={() => setGender('male')}
+                >
+                  <Text
+                    style={{
+                      color: gender === 'male' ? 'white' : colors.text,
+                      textAlign: 'center',
+                      fontWeight: gender === 'male' ? 'bold' : 'normal',
+                    }}
+                  >
+                    {t.male}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: gender === 'female' ? colors.primary : colors.card,
+                    padding: 15,
+                    borderRadius: 12,
+                    marginHorizontal: 5,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                  }}
+                  onPress={() => setGender('female')}
+                >
+                  <Text
+                    style={{
+                      color: gender === 'female' ? 'white' : colors.text,
+                      textAlign: 'center',
+                      fontWeight: gender === 'female' ? 'bold' : 'normal',
+                    }}
+                  >
+                    {t.female}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    backgroundColor: gender === 'other' ? colors.primary : colors.card,
+                    padding: 15,
+                    borderRadius: 12,
+                    marginLeft: 5,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                  }}
+                  onPress={() => setGender('other')}
+                >
+                  <Text
+                    style={{
+                      color: gender === 'other' ? 'white' : colors.text,
+                      textAlign: 'center',
+                      fontWeight: gender === 'other' ? 'bold' : 'normal',
+                    }}
+                  >
+                    {t.other}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              {errors.gender ? <Text style={{ color: colors.error, marginTop: 4 }}>{errors.gender}</Text> : null}
             </View>
 
             <TouchableOpacity 
@@ -383,13 +480,13 @@ export default function SignUpScreen() {
               disabled={loading}
             >
               <Text className="text-xl font-bold text-center text-white">
-                {loading ? 'Signing Up...' : 'Sign Up'}
+                {loading ? t.signingUp : t.signUp}
               </Text>
             </TouchableOpacity>
 
             <View className="flex-row justify-center items-center mb-8">
               <Text style={{ color: colors.textSecondary }} className="text-base">
-                Already have an account?
+                {t.alreadyHaveAccount}
               </Text>
               <TouchableOpacity 
                 onPress={() => navigation.navigate('Login')} 
@@ -397,7 +494,7 @@ export default function SignUpScreen() {
                 className="ml-2"
               >
                 <Text style={{ color: colors.primary }} className="text-base font-bold">
-                  Log In
+                  {t.login}
                 </Text>
               </TouchableOpacity>
             </View>

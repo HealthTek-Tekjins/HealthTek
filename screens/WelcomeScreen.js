@@ -4,12 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../translations';
 
 const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const navigation = useNavigation();
   const { colors, isDarkMode } = useTheme();
+  const { currentLanguage } = useLanguage();
+  const t = translations[currentLanguage];
   
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -71,7 +75,7 @@ export default function WelcomeScreen() {
             />
 
             <Text style={{ color: colors.text }} className="text-4xl font-bold text-center mb-4">
-              Welcome to HealthTek
+              {t.welcome}
             </Text>
 
             <Text style={{ color: colors.textSecondary }} className="text-lg text-center mb-12 px-8">
@@ -100,7 +104,7 @@ export default function WelcomeScreen() {
                   }}
                 >
                   <Text className="text-xl font-bold text-center text-white">
-                    Login
+                    {t.login}
                   </Text>
                 </TouchableOpacity>
 
@@ -120,7 +124,7 @@ export default function WelcomeScreen() {
                   }}
                 >
                   <Text style={{ color: '#FF69B4' }} className="text-xl font-bold text-center">
-                    Sign Up
+                    {t.signUp}
                   </Text>
                 </TouchableOpacity>
               </View>

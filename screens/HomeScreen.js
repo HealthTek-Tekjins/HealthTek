@@ -3,6 +3,8 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../translations';
 import { 
   HeartIcon, 
   ChartBarIcon, 
@@ -16,19 +18,21 @@ import {
 export default function HomeScreen({ navigation }) {
   const { colors } = useTheme();
   const { user } = useAuth();
+  const { currentLanguage } = useLanguage();
+  const t = translations[currentLanguage];
 
   // Mock data for health insights
   const healthInsights = [
-    { type: 'Heart Rate', value: '72', unit: 'bpm', trend: 'up', change: '+2' },
-    { type: 'Blood Pressure', value: '120/80', unit: 'mmHg', trend: 'stable', change: '0' },
+    { type: t.heartRate, value: '72', unit: 'bpm', trend: 'up', change: '+2' },
+    { type: t.bloodPressure, value: '120/80', unit: 'mmHg', trend: 'stable', change: '0' },
     { type: 'Steps', value: '8,547', unit: 'steps', trend: 'up', change: '+1,234' },
   ];
 
   const quickActions = [
-    { title: 'Record Health Data', icon: HeartIcon, screen: 'HealthData' },
-    { title: 'View Analytics', icon: ChartBarIcon, screen: 'Analytics' },
-    { title: 'Upcoming Appointments', icon: CalendarIcon, screen: 'Appointment' },
-    { title: 'Health Notifications', icon: BellIcon, screen: 'Notifications' },
+    { title: t.healthData, icon: HeartIcon, screen: 'HealthData' },
+    { title: t.analytics, icon: ChartBarIcon, screen: 'Analytics' },
+    { title: t.appointments, icon: CalendarIcon, screen: 'Appointment' },
+    { title: t.notifications, icon: BellIcon, screen: 'Notifications' },
   ];
 
   return (
@@ -43,7 +47,7 @@ export default function HomeScreen({ navigation }) {
         borderBottomColor: colors.border
       }}>
         <View>
-          <Text style={{ fontSize: 14, color: colors.textSecondary }}>Welcome back,</Text>
+          <Text style={{ fontSize: 14, color: colors.textSecondary }}>{t.welcomeBack},</Text>
           <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.text }}>
             {user?.email?.split('@')[0] || 'User'}
           </Text>
@@ -67,60 +71,59 @@ export default function HomeScreen({ navigation }) {
       {/* Main Content */}
       <ScrollView style={{ flex: 1, padding: 16 }}>
         {/* Health Insights Card */}
-        <View style={{ 
-          backgroundColor: colors.card,
-          borderRadius: 16,
-          padding: 16,
-          marginBottom: 16,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-        }}>
+        <View style={{ marginBottom: 24 }}>
           <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.text, marginBottom: 16 }}>
-            Today's Health Insights
+            {t.healthMetrics}
           </Text>
-          {healthInsights.map((insight, index) => (
-            <View key={index} style={{ 
-              flexDirection: 'row', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              marginBottom: 12,
-              paddingBottom: 12,
-              borderBottomWidth: index < healthInsights.length - 1 ? 1 : 0,
-              borderBottomColor: colors.border
-            }}>
-              <View>
-                <Text style={{ fontSize: 16, color: colors.text }}>{insight.type}</Text>
-                <Text style={{ fontSize: 14, color: colors.textSecondary }}>
-                  {insight.value} {insight.unit}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {healthInsights.map((insight, index) => (
+              <View
+                key={index}
+                style={{
+                  flex: 1,
+                  backgroundColor: colors.card,
+                  borderRadius: 12,
+                  padding: 12,
+                  marginHorizontal: 4,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 4,
+                  elevation: 3,
+                }}
+              >
+                <Text style={{ color: colors.textSecondary, fontSize: 12, marginBottom: 4 }}>
+                  {insight.type}
                 </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {insight.trend === 'up' ? (
-                  <ArrowTrendingUpIcon size={20} color={colors.success} />
-                ) : insight.trend === 'down' ? (
-                  <ArrowTrendingDownIcon size={20} color={colors.error} />
-                ) : null}
-                <Text style={{ 
-                  fontSize: 14, 
-                  color: insight.trend === 'up' ? colors.success : 
-                         insight.trend === 'down' ? colors.error : 
-                         colors.textSecondary,
-                  marginLeft: 4
-                }}>
-                  {insight.change}
+                <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 4 }}>
+                  {insight.value}
+                  <Text style={{ fontSize: 12, fontWeight: 'normal' }}> {insight.unit}</Text>
                 </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  {insight.trend === 'up' ? (
+                    <ArrowTrendingUpIcon size={16} color="#22c55e" />
+                  ) : insight.trend === 'down' ? (
+                    <ArrowTrendingDownIcon size={16} color="#ef4444" />
+                  ) : null}
+                  <Text
+                    style={{
+                      color: insight.trend === 'up' ? '#22c55e' : insight.trend === 'down' ? '#ef4444' : colors.textSecondary,
+                      fontSize: 12,
+                      marginLeft: 4,
+                    }}
+                  >
+                    {insight.change}
+                  </Text>
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
         </View>
 
         {/* Quick Actions Grid */}
         <View style={{ marginBottom: 16 }}>
           <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.text, marginBottom: 16 }}>
-            Quick Actions
+            {t.quickActions}
           </Text>
           <View style={{ 
             flexDirection: 'row', 
@@ -173,14 +176,14 @@ export default function HomeScreen({ navigation }) {
         }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.text }}>
-              Health Tips
+              {t.healthTips}
             </Text>
             <TouchableOpacity>
               <ChevronRightIcon size={24} color={colors.primary} />
             </TouchableOpacity>
           </View>
           <Text style={{ color: colors.textSecondary, fontSize: 14, lineHeight: 20 }}>
-            Stay hydrated throughout the day. Aim to drink at least 8 glasses of water daily to maintain optimal health and energy levels.
+            {t.healthTipText}
           </Text>
         </View>
 
@@ -203,10 +206,10 @@ export default function HomeScreen({ navigation }) {
         >
           <View>
             <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', marginBottom: 4 }}>
-              Emergency SOS
+              {t.emergencySOS}
             </Text>
             <Text style={{ color: '#FFFFFF', opacity: 0.8, fontSize: 14 }}>
-              Tap for emergency assistance
+              {t.tapForEmergency}
             </Text>
           </View>
           <ChevronRightIcon size={24} color="#FFFFFF" />
