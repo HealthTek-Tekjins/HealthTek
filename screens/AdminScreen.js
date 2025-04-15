@@ -1,10 +1,11 @@
-import { View, Text, TouchableOpacity, Image, TextInput, Alert, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, Animated, Dimensions } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -19,6 +20,7 @@ export default function AdminScreen() {
   // Animation values
   const fadeAnim = new Animated.Value(0);
   const slideAnim = new Animated.Value(50);
+  const scaleAnim = new Animated.Value(0.8);
 
   useEffect(() => {
     Animated.parallel([
@@ -32,16 +34,25 @@ export default function AdminScreen() {
         duration: 1000,
         useNativeDriver: true,
       }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
     ]).start();
-
-    // Log available screens for debugging
-    console.log('AdminScreen navigator screens:', navigation.getState()?.routeNames);
   }, []);
 
   const handleAdminLogin = () => {
+    if (!email.trim() || !password.trim()) {
+      setError('Please fill in all fields');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
+    // Simulated admin login (replace with actual authentication)
     if (email === '1' && password === '1') {
       console.log('Navigating to AdminDashboard');
       navigation.replace('AdminDashboard');
@@ -70,87 +81,166 @@ export default function AdminScreen() {
         </View>
 
         <Animated.View
-          className="flex-1 justify-center items-center"
+          className="flex-1 justify-center items-center px-8"
           style={{
             opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
+            transform: [
+              { translateY: slideAnim },
+              { scale: scaleAnim }
+            ],
           }}
         >
-          <Image
-            source={require('../assets/images/RB.png')}
+          {/* Admin Icon Container */}
+          <View
             style={{
-              width: width * 0.6,
-              height: width * 0.6,
-              resizeMode: 'contain',
-              borderRadius: 20,
-              shadowColor: colors.text,
+              width: width * 0.4,
+              height: width * 0.4,
+              backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : '#f8f8f8',
+              borderRadius: width * 0.2,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 32,
+              shadowColor: '#FF69B4',
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.2,
               shadowRadius: 8,
               elevation: 5,
+              borderWidth: 2,
+              borderColor: 'rgba(255,105,180,0.2)',
             }}
-            className="mb-8 rounded-2xl"
-          />
-
-          <Text style={{ color: colors.text }} className="text-2xl font-bold text-center mb-8">
-            Admin Login
-          </Text>
-
-          <View style={{ width: '85%', marginBottom: 20 }}>
-            <TextInput
-              className="rounded-xl p-4"
+          >
+            <MaterialCommunityIcons
+              name="shield-account"
+              size={width * 0.25}
+              color="#FF69B4"
               style={{
-                backgroundColor: colors.card,
-                color: colors.text,
-                borderWidth: 1,
-                borderColor: colors.border,
+                opacity: 0.9,
               }}
-              placeholder="Admin Email"
-              placeholderTextColor={colors.textSecondary}
-              value={email}
-              onChangeText={(value) => setEmail(value)}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              editable={!loading}
             />
           </View>
 
-          <View style={{ width: '85%', marginBottom: 20 }}>
-            <TextInput
-              className="rounded-xl p-4"
-              style={{
-                backgroundColor: colors.card,
-                color: colors.text,
+          <Text style={{ color: colors.text }} className="text-3xl font-bold text-center mb-2">
+            Admin Portal
+          </Text>
+          <Text style={{ color: colors.textSecondary }} className="text-base text-center mb-8">
+            Secure access for administrators
+          </Text>
+
+          <View style={{ width: '100%', marginBottom: 20 }}>
+            <View style={{ marginBottom: 16 }}>
+              <Text style={{ color: colors.textSecondary, marginBottom: 8, fontSize: 14, fontWeight: '600' }}>
+                Admin Email
+              </Text>
+              <View style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center',
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                borderRadius: 12,
                 borderWidth: 1,
-                borderColor: colors.border,
-              }}
-              secureTextEntry
-              placeholder="Admin Password"
-              placeholderTextColor={colors.textSecondary}
-              value={password}
-              onChangeText={(value) => setPassword(value)}
-              editable={!loading}
-            />
+                borderColor: error ? '#FF0000' : 'rgba(255,105,180,0.2)',
+              }}>
+                <MaterialCommunityIcons
+                  name="email"
+                  size={20}
+                  color="#FF69B4"
+                  style={{ marginLeft: 12 }}
+                />
+                <TextInput
+                  className="flex-1 p-4"
+                  style={{
+                    color: colors.text,
+                  }}
+                  placeholder="Enter admin email"
+                  placeholderTextColor={colors.textSecondary}
+                  value={email}
+                  onChangeText={(value) => {
+                    setEmail(value);
+                    setError('');
+                  }}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  editable={!loading}
+                />
+              </View>
+            </View>
+
+            <View style={{ marginBottom: 24 }}>
+              <Text style={{ color: colors.textSecondary, marginBottom: 8, fontSize: 14, fontWeight: '600' }}>
+                Admin Password
+              </Text>
+              <View style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center',
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: error ? '#FF0000' : 'rgba(255,105,180,0.2)',
+              }}>
+                <MaterialCommunityIcons
+                  name="lock"
+                  size={20}
+                  color="#FF69B4"
+                  style={{ marginLeft: 12 }}
+                />
+                <TextInput
+                  className="flex-1 p-4"
+                  style={{
+                    color: colors.text,
+                  }}
+                  secureTextEntry
+                  placeholder="Enter admin password"
+                  placeholderTextColor={colors.textSecondary}
+                  value={password}
+                  onChangeText={(value) => {
+                    setPassword(value);
+                    setError('');
+                  }}
+                  editable={!loading}
+                />
+              </View>
+            </View>
           </View>
 
           <TouchableOpacity
             onPress={handleAdminLogin}
-            className="rounded-xl w-3/4 mb-6"
+            className="rounded-xl w-full mb-6"
             style={{
-              backgroundColor: '#4CAF50',
+              backgroundColor: '#FF69B4',
               padding: 16,
+              opacity: loading ? 0.7 : 1,
+              shadowColor: '#FF69B4',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 5,
             }}
             disabled={loading}
           >
-            <Text className="text-xl font-bold text-center text-white">
-              {loading ? 'Logging in...' : 'Admin Login'}
-            </Text>
+            <View className="flex-row justify-center items-center">
+              <MaterialCommunityIcons
+                name="shield-lock"
+                size={24}
+                color="white"
+                style={{ marginRight: 8 }}
+              />
+              <Text className="text-xl font-bold text-center text-white">
+                {loading ? 'Logging in...' : 'Login to Admin Portal'}
+              </Text>
+            </View>
           </TouchableOpacity>
 
           {error && (
-            <Text style={{ color: 'red', marginTop: 10, textAlign: 'center' }}>
-              {error}
-            </Text>
+            <View className="flex-row items-center bg-red-100 p-3 rounded-lg">
+              <MaterialCommunityIcons 
+                name="alert-circle" 
+                size={20} 
+                color="#FF0000" 
+                style={{ marginRight: 8 }} 
+              />
+              <Text style={{ color: '#FF0000', fontSize: 14 }}>
+                {error}
+              </Text>
+            </View>
           )}
         </Animated.View>
       </LinearGradient>

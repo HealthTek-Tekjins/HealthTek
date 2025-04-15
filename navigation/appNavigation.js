@@ -36,25 +36,8 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import PaymentScreen from '../screens/PaymentScreen';
 import AdminScreen from '../screens/AdminScreen';
 import AdminDashboard from '../screens/AdminDashboard';
-
-// Placeholder screens for AdminDashboard navigation
-import { View, Text } from 'react-native';
-
-const PatientManagement = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Patient Management Screen</Text>
-  </View>
-);
-const DoctorManagement = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Doctor Management Screen</Text>
-  </View>
-);
-const MedicationManagement = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>Medication Management Screen</Text>
-  </View>
-);
+import DoctorManagementScreen from '../screens/DoctorManagement';
+import MedicationManagementScreen from '../screens/MedicationManagement';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -178,9 +161,42 @@ export default function AppNavigation() {
       <Stack.Screen name="SignUp" options={{ headerShown: false }} component={SignUpScreen} />
       <Stack.Screen name="Admin" options={{ headerShown: false }} component={AdminScreen} />
       <Stack.Screen name="AdminDashboard" options={{ headerShown: false }} component={AdminDashboard} />
-      <Stack.Screen name="PatientManagement" options={{ headerShown: false }} component={PatientManagement} />
-      <Stack.Screen name="DoctorManagement" options={{ headerShown: false }} component={DoctorManagement} />
-      <Stack.Screen name="MedicationManagement" options={{ headerShown: false }} component={MedicationManagement} />
+      <Stack.Screen 
+        name="PatientManagement" 
+        options={{ 
+          headerShown: true,
+          title: "Patient Management",
+          headerStyle: {
+            backgroundColor: colors.card,
+          },
+          headerTintColor: colors.text,
+        }} 
+        component={ManagePatientsScreen} 
+      />
+      <Stack.Screen 
+        name="DoctorManagement" 
+        options={{ 
+          headerShown: true,
+          title: "Doctor Management",
+          headerStyle: {
+            backgroundColor: colors.card,
+          },
+          headerTintColor: colors.text,
+        }} 
+        component={DoctorManagementScreen} 
+      />
+      <Stack.Screen 
+        name="MedicationManagement" 
+        options={{ 
+          headerShown: true,
+          title: "Medication Management",
+          headerStyle: {
+            backgroundColor: colors.card,
+          },
+          headerTintColor: colors.text,
+        }} 
+        component={MedicationManagementScreen} 
+      />
       <Stack.Screen name="MainTabs" options={{ headerShown: false }} component={MainTabs} />
       <Stack.Screen
         name="CreatePrescription"
@@ -312,15 +328,6 @@ export default function AppNavigation() {
         component={DoctorDashboardScreen}
         options={{
           headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="ManagePatients"
-        component={ManagePatientsScreen}
-        options={{
-          headerShown: false,
-          presentation: 'card',
-          animation: 'slide_from_right',
         }}
       />
       <Stack.Screen
