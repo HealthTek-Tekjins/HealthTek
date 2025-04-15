@@ -1,30 +1,121 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow users to read and write their own userDetails document
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is a doctor
+    function isDoctor() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'doctor';
+    }
+
+    // Helper function to check if user is a patient
+    function isPatient() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'patient';
+    }
+
+    // Allow users to read and write their own data
     match /userDetails/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Allow users to read and write their own appointments
-    match /appointments/{appointmentId} {
-      allow read, write: if request.auth != null && 
-        (resource == null || resource.data.userId == request.auth.uid);
+
+    // Health data rules with proper permissions
+    match /healthData/{dataId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.patientId == request.auth.uid ||
+        isDoctor()
+      );
+      
+      allow create: if isAuthenticated() && (
+        request.resource.data.userId == request.auth.uid ||
+        request.resource.data.patientId == request.auth.uid
+      );
+      
+      allow update, delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.patientId == request.auth.uid
+      );
     }
-    
-    // Allow users to read and write their own emergency contacts
+
+    // Appointments rules with proper permissions
+    match /appointments/{appointmentId} {
+      allow read: if request.auth != null && (
+        isDoctor() || 
+        resource.data.patientId == request.auth.uid
+      );
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (
+        isDoctor() || 
+        resource.data.patientId == request.auth.uid
+      );
+      allow delete: if request.auth != null && (
+        isDoctor() || 
+        resource.data.patientId == request.auth.uid
+      );
+    }
+
+    // Emergency contacts rules
     match /emergencyContacts/{contactId} {
       allow read, write: if request.auth != null && 
         (resource == null || resource.data.userId == request.auth.uid);
     }
-    
-    // Allow users to read and write their own health data
-    match /healthData/{dataId} {
-      allow read, write: if request.auth != null && 
-        (resource == null || resource.data.userId == request.auth.uid);
+
+    // Doctors collection rules
+    match /doctors/{doctorId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == doctorId;
+      allow update: if request.auth != null && request.auth.uid == doctorId;
+      allow delete: if request.auth != null && request.auth.uid == doctorId;
     }
-    
-    // Default deny all other paths
+
+    // Users collection rules
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Doctor availability rules
+    match /doctorAvailability/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isDoctor();
+    }
+
+    // Doctor specializations rules
+    match /doctorSpecializations/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isDoctor();
+    }
+
+    // Medicines rules
+    match /medicines/{medicineId} {
+      allow read: if true;  // Anyone can read medicines
+      allow write: if request.auth != null && isDoctor();
+    }
+
+    // Cart rules
+    match /cart/{cartId} {
+      allow read, write: if request.auth != null && 
+        resource.data.userId == request.auth.uid;
+    }
+
+    // Orders rules
+    match /orders/{orderId} {
+      allow read: if request.auth != null && (
+        isDoctor() || 
+        resource.data.patientId == request.auth.uid
+      );
+      allow create: if request.auth != null && isPatient();
+      allow update: if request.auth != null && isDoctor();
+    }
+
+    // Default deny all other access
     match /{document=**} {
       allow read, write: if false;
     }

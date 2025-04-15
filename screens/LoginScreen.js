@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, TextInput, Alert, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, TextInput, Alert, Animated, Dimensions, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/solid';
@@ -7,6 +7,7 @@ import { auth } from '../config/firebase';
 import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
 import { useTheme } from '../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -35,6 +36,9 @@ export default function LoginScreen() {
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Debug available screens
+    console.log('Navigator screens:', navigation.getState()?.routeNames);
   }, []);
 
   const handleForgotPassword = async () => {
@@ -74,11 +78,9 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      // Clear any previous errors
       setErrors({});
       setLoading(true);
 
-      // Validate email and password
       if (!email.trim()) {
         setErrors({ email: 'Email is required' });
         return;
@@ -88,18 +90,15 @@ export default function LoginScreen() {
         return;
       }
 
-      // Attempt to sign in
       const userCredential = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
       
       if (userCredential.user) {
-        // Only navigate if we have a valid user
         navigation.replace('MainTabs');
       }
     } catch (error) {
       console.error('Login error:', error);
       let errorMessage = 'Invalid email or password';
       
-      // Handle specific Firebase error codes
       switch (error.code) {
         case 'auth/invalid-credential':
           errorMessage = 'Invalid email or password';
@@ -132,133 +131,197 @@ export default function LoginScreen() {
         colors={isDarkMode ? ['#1a1a1a', '#2d2d2d'] : ['#ffffff', '#f0f0f0']}
         style={{ flex: 1 }}
       >
-        <View className="flex-row justify-start">
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            className="p-2 rounded-tr-2xl rounded-bl-2xl ml-4 mt-4"
-            style={{ backgroundColor: colors.card }}
-            disabled={loading}
-          >
-            <ArrowLeftIcon size={20} color={colors.text} />
-          </TouchableOpacity>
-        </View>
-
-        <Animated.View 
-          className="flex-1 justify-center items-center"
-          style={{
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-          }}
+        <ScrollView 
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Image
-            source={require('../assets/images/RB.png')}
-            style={{ 
-              width: width * 0.6, 
-              height: width * 0.6, 
-              resizeMode: 'contain', 
-              borderRadius: 20,
-              shadowColor: colors.text,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.2,
-              shadowRadius: 8,
-              elevation: 5,
-            }}
-            className="mb-8 rounded-2xl"
-          />
-          
-          <Text style={{ color: colors.text }} className="text-2xl font-bold text-center mb-8">
-            Welcome Back
-          </Text>
-
-          <View style={{ width: '85%', marginBottom: 20 }}>
-            <TextInput
-              className="rounded-xl p-4"
-              style={{ 
-                backgroundColor: colors.card,
-                color: colors.text,
-                borderWidth: 1,
-                borderColor: colors.border,
-              }}
-              placeholder="Email"
-              placeholderTextColor={colors.textSecondary}
-              value={email}
-              onChangeText={(value) => setEmail(value)}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              editable={!loading}
-            />
-          </View>
-
-          <View style={{ width: '85%', marginBottom: 20 }}>
-            <TextInput
-              className="rounded-xl p-4"
-              style={{ 
-                backgroundColor: colors.card,
-                color: colors.text,
-                borderWidth: 1,
-                borderColor: colors.border,
-              }}
-              secureTextEntry
-              placeholder="Password"
-              placeholderTextColor={colors.textSecondary}
-              value={password}
-              onChangeText={(value) => setPassword(value)}
-              editable={!loading}
-            />
-          </View>
-
-          <TouchableOpacity
-            onPress={handleLogin}
-            className="rounded-xl w-3/4 mb-6"
-            style={{ 
-              backgroundColor: colors.primary,
-              padding: 16,
-            }}
-            disabled={loading}
-          >
-            <Text className="text-xl font-bold text-center text-white">
-              {loading ? 'Logging in...' : 'Login'}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={handleForgotPassword}
-            className="mb-6"
-          >
-            <Text style={{ color: colors.primary }} className="text-base font-semibold">
-              Forgot Password?
-            </Text>
-          </TouchableOpacity>
-
-          <View className="flex-row justify-center items-center mb-8">
-            <Text style={{ color: colors.textSecondary }} className="text-base">
-              Don't have an account?
-            </Text>
+          <View className="flex-row justify-start">
             <TouchableOpacity
-              onPress={() => navigation.navigate('SignUp')}
+              onPress={() => navigation.goBack()}
+              className="p-2 rounded-tr-2xl rounded-bl-2xl ml-4 mt-4"
+              style={{ backgroundColor: colors.card }}
               disabled={loading}
-              className="ml-2"
             >
-              <Text style={{ color: colors.primary }} className="text-base font-bold">
-                Sign Up
-              </Text>
+              <ArrowLeftIcon size={20} color={colors.text} />
             </TouchableOpacity>
           </View>
 
-
-          {/* Doctor Login Link */}
-          <TouchableOpacity
-            onPress={() => navigation.navigate('DoctorLogin')}
-            className="mt-4"
+          <Animated.View 
+            className="flex-1 justify-center items-center py-8"
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            }}
           >
-            <Text 
-              style={{ color: '#FF69B4' }}
-              className="text-center text-base font-medium"
-            >
-              Are you a doctor? Login here
+            <Image
+              source={require('../assets/images/RB.png')}
+              style={{ 
+                width: width * 0.6, 
+                height: width * 0.6, 
+                resizeMode: 'contain', 
+                borderRadius: 20,
+                shadowColor: colors.text,
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.2,
+                shadowRadius: 8,
+                elevation: 5,
+              }}
+              className="mb-8 rounded-2xl"
+            />
+            
+            <Text style={{ color: colors.text }} className="text-2xl font-bold text-center mb-8">
+              Welcome Back
             </Text>
-          </TouchableOpacity>
-        </Animated.View>
+
+            <View style={{ width: '85%', marginBottom: 20 }}>
+              <TextInput
+                className="rounded-xl p-4"
+                style={{ 
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                placeholder="Email"
+                placeholderTextColor={colors.textSecondary}
+                value={email}
+                onChangeText={(value) => setEmail(value)}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                editable={!loading}
+              />
+            </View>
+
+            <View style={{ width: '85%', marginBottom: 20 }}>
+              <TextInput
+                className="rounded-xl p-4"
+                style={{ 
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+                secureTextEntry
+                placeholder="Password"
+                placeholderTextColor={colors.textSecondary}
+                value={password}
+                onChangeText={(value) => setPassword(value)}
+                editable={!loading}
+              />
+            </View>
+
+            <TouchableOpacity
+              onPress={handleLogin}
+              className="rounded-xl w-3/4 mb-6"
+              style={{ 
+                backgroundColor: colors.primary,
+                padding: 16,
+              }}
+              disabled={loading}
+            >
+              <Text className="text-xl font-bold text-center text-white">
+                {loading ? 'Logging in...' : 'Login'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handleForgotPassword}
+              className="mb-6"
+            >
+              <Text style={{ color: colors.primary }} className="text-base font-semibold">
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
+
+            {/* SSO Buttons */}
+            <View className="w-3/4 mb-6">
+              <Text style={{ color: colors.textSecondary }} className="text-center mb-4">
+                Or continue with
+              </Text>
+              
+              <View className="flex-row justify-center space-x-4">
+                {/* Google Button */}
+                <TouchableOpacity
+                  className="p-3 rounded-full"
+                  style={{ backgroundColor: '#FFFFFF' }}
+                  onPress={() => console.log('Google Sign In pressed')}
+                >
+                  <MaterialCommunityIcons name="google" size={24} color="#DB4437" />
+                </TouchableOpacity>
+
+                {/* Apple Button */}
+                <TouchableOpacity
+                  className="p-3 rounded-full"
+                  style={{ backgroundColor: '#000000' }}
+                  onPress={() => console.log('Apple Sign In pressed')}
+                >
+                  <MaterialCommunityIcons name="apple" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
+
+                {/* Facebook Button */}
+                <TouchableOpacity
+                  className="p-3 rounded-full"
+                  style={{ backgroundColor: '#1877F2' }}
+                  onPress={() => console.log('Facebook Sign In pressed')}
+                >
+                  <MaterialCommunityIcons name="facebook" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View className="flex-row justify-center items-center mb-8">
+              <Text style={{ color: colors.textSecondary }} className="text-base">
+                Don't have an account?
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('SignUp')}
+                disabled={loading}
+                className="ml-2"
+              >
+                <Text style={{ color: colors.primary }} className="text-base font-bold">
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Role-based Login Links */}
+            <View className="w-full items-center space-y-4 mb-8">
+              {/* Doctor Login Link */}
+              <TouchableOpacity
+                onPress={() => navigation.navigate('DoctorLogin')}
+                className="w-3/4 py-3 rounded-xl"
+                style={{ backgroundColor: '#FF69B4' }}
+              >
+                <Text className="text-center text-base font-bold text-white">
+                  Are you a doctor? Login here
+                </Text>
+              </TouchableOpacity>
+
+              {/* Admin Login Link */}
+              <TouchableOpacity
+                onPress={() => {
+                  console.log('Admin button pressed');
+                  console.log('Attempting to navigate to Admin screen');
+                  console.log('Current navigator screens:', navigation.getState()?.routeNames);
+                  if (navigation.getState()?.routeNames.includes('Admin')) {
+                    navigation.navigate('Admin');
+                    console.log('Navigation to Admin initiated');
+                  } else {
+                    console.error('Admin screen not found in navigator');
+                    Alert.alert('Navigation Error', 'Admin screen is not available');
+                  }
+                }}
+                className="w-3/4 py-3 rounded-xl"
+                style={{ backgroundColor: '#4CAF50' }}
+              >
+                <Text className="text-center text-base font-bold text-white">
+                  Administrator Login
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </ScrollView>
       </LinearGradient>
     </SafeAreaView>
   );

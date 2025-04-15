@@ -15,7 +15,20 @@ import {
 } from 'react-native-heroicons/solid';
 import { LinearGradient } from 'expo-linear-gradient';
 import { auth, db } from '../config/firebase';
-import { collection, query, where, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { 
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  deleteDoc, 
+  doc, 
+  updateDoc, 
+  addDoc,
+  setLogLevel 
+} from 'firebase/firestore';
+
+// Enable Firestore debug logging
+setLogLevel('debug');
 
 export default function AppointmentScreen() {
   const navigation = useNavigation();
@@ -31,33 +44,151 @@ export default function AppointmentScreen() {
 
   const fetchAppointments = async () => {
     try {
+      console.log('Starting to fetch appointments...');
       setLoading(true);
       setError(null);
       const user = auth.currentUser;
       
       if (!user) {
+        console.log('No authenticated user found');
         throw new Error('User not authenticated');
       }
 
+      console.log('Current user:', {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName
+      });
+
       const appointmentsRef = collection(db, 'appointments');
-      const q = query(appointmentsRef, where('userId', '==', user.uid));
-      const querySnapshot = await getDocs(q);
+      console.log('Creating query for appointments with patientId:', user.uid);
       
-      const appointmentsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      // Query for appointments where the user is the patient
+      const q = query(
+        appointmentsRef,
+        where('patientId', '==', user.uid)
+      );
+      
+      console.log('Executing query for patientId:', user.uid);
+      const querySnapshot = await getDocs(q);
+      console.log('Query completed. Number of appointments:', querySnapshot.size);
+      
+      // Filter appointments for the current user
+      const appointmentsData = querySnapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .filter(appointment => appointment.patientId === user.uid);
+
+      console.log('Filtered appointments for user:', appointmentsData.length);
 
       // Sort appointments by date
       appointmentsData.sort((a, b) => new Date(a.date) - new Date(b.date));
+      console.log('Appointments sorted and processed:', appointmentsData.length);
+      
       setAppointments(appointmentsData);
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
       setError('Failed to load appointments. Please try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
+  };
+
+  const handleCreateAppointment = async (appointmentData) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('User not authenticated');
+
+      const appointmentsRef = collection(db, 'appointments');
+      const newAppointment = {
+        ...appointmentData,
+        patientId: user.uid,
+        createdAt: new Date().toISOString(),
+        status: 'scheduled'
+      };
+
+      const docRef = await addDoc(appointmentsRef, newAppointment);
+      console.log('Appointment created with ID:', docRef.id);
+      
+      // Refresh appointments list
+      await fetchAppointments();
+      
+      return docRef.id;
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      throw error;
+    }
+  };
+
+  const handleUpdateAppointment = async (appointmentId, updatedData) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('User not authenticated');
+
+      const appointmentRef = doc(db, 'appointments', appointmentId);
+      await updateDoc(appointmentRef, {
+        ...updatedData,
+        updatedAt: new Date().toISOString()
+      });
+
+      console.log('Appointment updated successfully');
+      
+      // Refresh appointments list
+      await fetchAppointments();
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      throw error;
+    }
+  };
+
+  const handleDeleteAppointment = async (appointmentId) => {
+    try {
+      Alert.alert(
+        'Delete Appointment',
+        'Are you sure you want to delete this appointment?',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              const appointmentRef = doc(db, 'appointments', appointmentId);
+              await deleteDoc(appointmentRef);
+              console.log('Appointment deleted successfully');
+              
+              // Refresh appointments list
+              await fetchAppointments();
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      Alert.alert('Error', 'Failed to delete appointment. Please try again.');
+    }
+  };
+
+  const handleEditAppointment = (appointment) => {
+    navigation.navigate('EditAppointment', { 
+      appointment,
+      onUpdate: handleUpdateAppointment
+    });
+  };
+
+  const handleAddAppointment = () => {
+    navigation.navigate('AddAppointment', {
+      onCreate: handleCreateAppointment
+    });
   };
 
   useEffect(() => {
@@ -79,36 +210,6 @@ export default function AppointmentScreen() {
       }),
     ]).start();
   }, []);
-
-  const handleDeleteAppointment = async (appointmentId) => {
-    try {
-      Alert.alert(
-        'Delete Appointment',
-        'Are you sure you want to delete this appointment?',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: async () => {
-              await deleteDoc(doc(db, 'appointments', appointmentId));
-              setAppointments(appointments.filter(apt => apt.id !== appointmentId));
-            },
-          },
-        ]
-      );
-    } catch (error) {
-      console.error('Error deleting appointment:', error);
-      Alert.alert('Error', 'Failed to delete appointment. Please try again.');
-    }
-  };
-
-  const handleEditAppointment = (appointment) => {
-    navigation.navigate('EditAppointment', { appointment });
-  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -147,7 +248,7 @@ export default function AppointmentScreen() {
                 Appointments
               </Text>
               <TouchableOpacity
-                onPress={() => navigation.navigate('AddAppointment')}
+                onPress={handleAddAppointment}
                 className="bg-[#FF69B4] p-3 rounded-full"
                 style={{
                   shadowColor: '#FF69B4',
@@ -185,7 +286,7 @@ export default function AppointmentScreen() {
                   No appointments scheduled
                 </Text>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('AddAppointment')}
+                  onPress={handleAddAppointment}
                   className="mt-4 bg-[#FF69B4] px-6 py-3 rounded-xl"
                 >
                   <Text className="text-white font-semibold">Schedule Appointment</Text>

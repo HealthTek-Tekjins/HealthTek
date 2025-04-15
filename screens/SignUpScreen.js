@@ -15,6 +15,10 @@ import LanguageSelector from '../components/LanguageSelector';
 
 const { width } = Dimensions.get('window');
 
+// Move animation values outside the component
+const fadeAnim = new Animated.Value(0);
+const slideAnim = new Animated.Value(50);
+
 export default function SignUpScreen() {
   const navigation = useNavigation();
   const { colors, isDarkMode } = useTheme();
@@ -27,14 +31,14 @@ export default function SignUpScreen() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ name: '', surname: '', phoneNumber: '', email: '', password: '', gender: '' });
 
-  // Animation values
-  const fadeAnim = new Animated.Value(0);
-  const slideAnim = new Animated.Value(50);
-
   const { currentLanguage } = useLanguage();
   const t = translations[currentLanguage];
 
   useEffect(() => {
+    // Reset animation values when language changes
+    fadeAnim.setValue(0);
+    slideAnim.setValue(50);
+    
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -47,7 +51,7 @@ export default function SignUpScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [currentLanguage]); // Add currentLanguage as a dependency
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

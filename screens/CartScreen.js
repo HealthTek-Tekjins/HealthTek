@@ -32,39 +32,8 @@ const CartScreen = () => {
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  const handleCheckout = async () => {
-    if (!auth.currentUser) {
-      Alert.alert('Error', 'Please log in to place an order');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const orderRef = collection(db, 'orders');
-      await addDoc(orderRef, {
-        userId: auth.currentUser.uid,
-        items: cart.map(item => ({
-          medicineId: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price
-        })),
-        total: calculateTotal(),
-        status: 'pending',
-        createdAt: serverTimestamp()
-      });
-
-      Alert.alert(
-        'Success',
-        'Order placed successfully',
-        [{ text: 'OK', onPress: () => navigation.navigate('Medicine') }]
-      );
-    } catch (error) {
-      console.error('Error placing order:', error);
-      Alert.alert('Error', 'Failed to place order. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleCheckout = () => {
+    navigation.navigate('Checkout', { cart: cart });
   };
 
   const renderCartItem = (item) => (
@@ -194,13 +163,9 @@ const CartScreen = () => {
                 className={`py-4 rounded-xl ${loading ? 'opacity-50' : ''}`}
                 style={{ backgroundColor: '#FF69B4' }}
               >
-                {loading ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text className="text-white text-center font-bold text-lg">
-                    Checkout
-                  </Text>
-                )}
+                <Text className="text-white text-center font-bold text-lg">
+                  Checkout
+                </Text>
               </TouchableOpacity>
             </View>
           )}

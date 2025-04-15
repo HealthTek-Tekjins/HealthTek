@@ -49,7 +49,7 @@ export default function HomeScreen({ navigation }) {
         <View>
           <Text style={{ fontSize: 14, color: colors.textSecondary }}>{t.welcomeBack},</Text>
           <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.text }}>
-            {user?.email?.split('@')[0] || 'User'}
+            {user?.displayName?.split(' ')[0] || 'User'}
           </Text>
         </View>
         <TouchableOpacity 
