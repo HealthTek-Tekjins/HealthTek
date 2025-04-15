@@ -405,7 +405,7 @@ export default function SignUpScreen() {
                 <TouchableOpacity
                   style={{
                     flex: 1,
-                    backgroundColor: gender === 'male' ? colors.primary : colors.card,
+                    backgroundColor: gender === 'male' ? '#FF69B4' : colors.card,
                     padding: 15,
                     borderRadius: 12,
                     marginRight: 5,
@@ -428,7 +428,7 @@ export default function SignUpScreen() {
                 <TouchableOpacity
                   style={{
                     flex: 1,
-                    backgroundColor: gender === 'female' ? colors.primary : colors.card,
+                    backgroundColor: gender === 'female' ? '#FF69B4' : colors.card,
                     padding: 15,
                     borderRadius: 12,
                     marginHorizontal: 5,
@@ -451,7 +451,7 @@ export default function SignUpScreen() {
                 <TouchableOpacity
                   style={{
                     flex: 1,
-                    backgroundColor: gender === 'other' ? colors.primary : colors.card,
+                    backgroundColor: gender === 'other' ? '#FF69B4' : colors.card,
                     padding: 15,
                     borderRadius: 12,
                     marginLeft: 5,

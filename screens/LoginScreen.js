@@ -329,7 +329,7 @@ export default function LoginScreen() {
                   }
                 }}
                 className="w-3/4 py-3 rounded-xl"
-                style={{ backgroundColor: '#4CAF50' }}
+                style={{ backgroundColor: '#FF69B4' }}
               >
                 <Text className="text-center text-base font-bold text-white">
                   Administrator Login

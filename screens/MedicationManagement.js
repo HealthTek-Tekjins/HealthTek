@@ -148,7 +148,7 @@ export default function MedicationManagement({ navigation }) {
             <TouchableOpacity
               style={{
                 flex: 1,
-                backgroundColor: isEditing ? '#FF69B4' : '#4CAF50',
+                backgroundColor: isEditing ? '#FF69B4' : '#FF69B4',
                 borderRadius: 8,
                 padding: 12,
                 alignItems: 'center',

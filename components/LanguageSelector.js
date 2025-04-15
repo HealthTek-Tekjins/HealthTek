@@ -18,7 +18,7 @@ const LanguageSelector = () => {
           style={[
             styles.languageButton,
             {
-              backgroundColor: currentLanguage === 'en' ? colors.primary : colors.card,
+              backgroundColor: currentLanguage === 'en' ? '#FF69B4' : colors.card,
               borderColor: colors.border,
             },
           ]}
@@ -38,7 +38,7 @@ const LanguageSelector = () => {
           style={[
             styles.languageButton,
             {
-              backgroundColor: currentLanguage === 'st' ? colors.primary : colors.card,
+              backgroundColor: currentLanguage === 'st' ? '#FF69B4' : colors.card,
               borderColor: colors.border,
             },
           ]}
@@ -58,7 +58,7 @@ const LanguageSelector = () => {
           style={[
             styles.languageButton,
             {
-              backgroundColor: currentLanguage === 'af' ? colors.primary : colors.card,
+              backgroundColor: currentLanguage === 'af' ? '#FF69B4' : colors.card,
               borderColor: colors.border,
             },
           ]}
