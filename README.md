@@ -1,5 +1,5 @@
 # HealthTek - Healthcare Management System
-
+# Developed - by Motjoka Kopano Fanana
 <div align="center">
   <img src="./assets/images/RB.png" alt="HealthTek Logo" width="200"/>
 </div>
