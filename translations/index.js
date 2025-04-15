@@ -130,6 +130,7 @@ export const translations = {
     emergencySOS: 'Emergency SOS',
     tapForEmergency: 'Tap for emergency assistance',
     todayHealthInsights: "Today's Health Insights",
+    viewPrescription: 'View Prescription', // Ensure this key is defined
 
     // Dashboard Screen
     dashboard: 'Dashboard',

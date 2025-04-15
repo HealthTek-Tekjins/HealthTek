@@ -32,6 +32,7 @@ import ManagePatientsScreen from '../screens/ManagePatientsScreen';
 import AnalyticsScreen from '../screens/AnalyticsScreen';
 import DoctorSettingsScreen from '../screens/DoctorSettingsScreen';
 import CreatePrescriptionScreen from '../screens/CreatePrescriptionScreen';
+import ViewPrescriptionScreen from '../screens/ViewPrescriptionScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import PaymentScreen from '../screens/PaymentScreen';
 import AdminScreen from '../screens/AdminScreen';
@@ -354,6 +355,18 @@ export default function AppNavigation() {
           headerShown: false,
           presentation: 'modal',
           animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen
+        name="ViewPrescription"
+        component={ViewPrescriptionScreen}
+        options={{
+          headerShown: true,
+          title: t.viewPrescription,
+          headerStyle: {
+            backgroundColor: colors.card,
+          },
+          headerTintColor: colors.text,
         }}
       />
     </Stack.Navigator>

@@ -1,18 +1,19 @@
-import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations';
-import { 
-  HeartIcon, 
-  ChartBarIcon, 
-  BellIcon, 
+import {
+  DocumentIcon,
+  HeartIcon,
+  ChartBarIcon,
+  BellIcon,
   CalendarIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
 } from 'react-native-heroicons/solid';
 
 export default function HomeScreen({ navigation }) {
@@ -32,28 +33,32 @@ export default function HomeScreen({ navigation }) {
     { title: t.healthData, icon: HeartIcon, screen: 'HealthData' },
     { title: t.analytics, icon: ChartBarIcon, screen: 'Analytics' },
     { title: t.appointments, icon: CalendarIcon, screen: 'Appointment' },
-    { title: t.notifications, icon: BellIcon, screen: 'Notifications' },
+    { title: t.viewPrescription, icon: DocumentIcon, screen: 'ViewPrescription' },
   ];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
-      <View style={{ 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border
-      }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
+      >
         <View>
-          <Text style={{ fontSize: 14, color: colors.textSecondary }}>{t.welcomeBack},</Text>
+          <Text style={{ fontSize: 14, color: colors.textSecondary }}>
+            {t.welcomeBack},
+          </Text>
           <Text style={{ fontSize: 24, fontWeight: 'bold', color: colors.text }}>
             {user?.displayName?.split(' ')[0] || 'User'}
           </Text>
         </View>
-        <TouchableOpacity 
-          style={{ 
+        <TouchableOpacity
+          style={{
             backgroundColor: colors.card,
             padding: 8,
             borderRadius: 20,
@@ -72,7 +77,14 @@ export default function HomeScreen({ navigation }) {
       <ScrollView style={{ flex: 1, padding: 16 }}>
         {/* Health Insights Card */}
         <View style={{ marginBottom: 24 }}>
-          <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.text, marginBottom: 16 }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: colors.text,
+              marginBottom: 16,
+            }}
+          >
             {t.healthMetrics}
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -92,12 +104,24 @@ export default function HomeScreen({ navigation }) {
                   elevation: 3,
                 }}
               >
-                <Text style={{ color: colors.textSecondary, fontSize: 12, marginBottom: 4 }}>
+                <Text
+                  style={{ color: colors.textSecondary, fontSize: 12, marginBottom: 4 }}
+                >
                   {insight.type}
                 </Text>
-                <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 4 }}>
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    marginBottom: 4,
+                  }}
+                >
                   {insight.value}
-                  <Text style={{ fontSize: 12, fontWeight: 'normal' }}> {insight.unit}</Text>
+                  <Text style={{ fontSize: 12, fontWeight: 'normal' }}>
+                    {' '}
+                    {insight.unit}
+                  </Text>
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   {insight.trend === 'up' ? (
@@ -107,7 +131,12 @@ export default function HomeScreen({ navigation }) {
                   ) : null}
                   <Text
                     style={{
-                      color: insight.trend === 'up' ? '#22c55e' : insight.trend === 'down' ? '#ef4444' : colors.textSecondary,
+                      color:
+                        insight.trend === 'up'
+                          ? '#22c55e'
+                          : insight.trend === 'down'
+                          ? '#ef4444'
+                          : colors.textSecondary,
                       fontSize: 12,
                       marginLeft: 4,
                     }}
@@ -122,15 +151,24 @@ export default function HomeScreen({ navigation }) {
 
         {/* Quick Actions Grid */}
         <View style={{ marginBottom: 16 }}>
-          <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.text, marginBottom: 16 }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: colors.text,
+              marginBottom: 16,
+            }}
+          >
             {t.quickActions}
           </Text>
-          <View style={{ 
-            flexDirection: 'row', 
-            flexWrap: 'wrap', 
-            justifyContent: 'space-between',
-            gap: 12
-          }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
             {quickActions.map((action, index) => (
               <TouchableOpacity
                 key={index}
@@ -148,13 +186,19 @@ export default function HomeScreen({ navigation }) {
                   elevation: 3,
                 }}
               >
-                <action.icon size={32} color={colors.primary} style={{ marginBottom: 8 }} />
-                <Text style={{ 
-                  color: colors.text, 
-                  fontSize: 14, 
-                  textAlign: 'center',
-                  fontWeight: '500'
-                }}>
+                <action.icon
+                  size={32}
+                  color={colors.primary}
+                  style={{ marginBottom: 8 }}
+                />
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontSize: 14,
+                    textAlign: 'center',
+                    fontWeight: '500',
+                  }}
+                >
                   {action.title}
                 </Text>
               </TouchableOpacity>
@@ -163,18 +207,27 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         {/* Health Tips Section */}
-        <View style={{ 
-          backgroundColor: colors.card,
-          borderRadius: 16,
-          padding: 16,
-          marginBottom: 16,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-        }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <View
+          style={{
+            backgroundColor: colors.card,
+            borderRadius: 16,
+            padding: 16,
+            marginBottom: 16,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 12,
+            }}
+          >
             <Text style={{ fontSize: 20, fontWeight: 'bold', color: colors.text }}>
               {t.healthTips}
             </Text>
@@ -205,7 +258,9 @@ export default function HomeScreen({ navigation }) {
           }}
         >
           <View>
-            <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', marginBottom: 4 }}>
+            <Text
+              style={{ color: '#FFFFFF', fontSize: 20, fontWeight: 'bold', marginBottom: 4 }}
+            >
               {t.emergencySOS}
             </Text>
             <Text style={{ color: '#FFFFFF', opacity: 0.8, fontSize: 14 }}>
