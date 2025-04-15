@@ -10,17 +10,21 @@ import {
   ClockIcon,
   MapPinIcon,
   UserIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  ChevronDownIcon
 } from 'react-native-heroicons/solid';
 import { LinearGradient } from 'expo-linear-gradient';
 import { auth, db } from '../config/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { Picker } from '@react-native-picker/picker';
 
 export default function AddAppointment() {
   const navigation = useNavigation();
   const { colors, isDarkMode } = useTheme();
   const [loading, setLoading] = useState(false);
+  const [doctors, setDoctors] = useState([]);
   const [formData, setFormData] = useState({
+    doctorId: '',
     doctorName: '',
     specialty: '',
     date: new Date().toISOString().split('T')[0],
@@ -37,6 +41,7 @@ export default function AddAppointment() {
   const slideAnim = useRef(new Animated.Value(50)).current;
 
   useEffect(() => {
+    fetchDoctors();
     // Start animations
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -52,27 +57,49 @@ export default function AddAppointment() {
     ]).start();
   }, []);
 
+  const fetchDoctors = async () => {
+    try {
+      const doctorsRef = collection(db, 'doctors');
+      const querySnapshot = await getDocs(doctorsRef);
+      const doctorsList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setDoctors(doctorsList);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+      Alert.alert('Error', 'Failed to load doctors list');
+    }
+  };
+
+  const handleDoctorSelect = (doctorId) => {
+    const selectedDoctor = doctors.find(doc => doc.id === doctorId);
+    if (selectedDoctor) {
+      setFormData({
+        ...formData,
+        doctorId: doctorId,
+        doctorName: selectedDoctor.fullName || 'Unknown',
+        specialty: selectedDoctor.specialization || 'Not specified',
+        location: selectedDoctor.location ? 
+          `${selectedDoctor.location.address || ''}, ${selectedDoctor.location.city || ''}, ${selectedDoctor.location.country || ''}` 
+          : 'Location not available'
+      });
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.doctorName.trim()) {
-      newErrors.doctorName = 'Doctor name is required';
-    }
-
-    if (!formData.specialty.trim()) {
-      newErrors.specialty = 'Specialty is required';
+    if (!formData.doctorId) {
+      newErrors.doctorId = 'Please select a doctor';
     }
 
     if (!formData.date) {
       newErrors.date = 'Date is required';
     }
 
-    if (!formData.time.trim()) {
+    if (!formData.time) {
       newErrors.time = 'Time is required';
-    }
-
-    if (!formData.location.trim()) {
-      newErrors.location = 'Location is required';
     }
 
     setErrors(newErrors);
@@ -93,7 +120,7 @@ export default function AddAppointment() {
       const appointmentsRef = collection(db, 'appointments');
       await addDoc(appointmentsRef, {
         ...formData,
-        userId: user.uid,
+        patientId: user.uid,
         createdAt: new Date(),
       });
 
@@ -115,16 +142,10 @@ export default function AddAppointment() {
     }
   };
 
-  const appointmentTypes = [
-    'Regular Checkup',
-    'Follow-up Visit',
-    'Consultation',
-    'Emergency Visit',
-    'Specialist Visit',
-    'Lab Test',
-    'Vaccination',
-    'Physical Therapy'
-  ];
+  // Generate time options
+  const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
+  const minutes = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
+  const periods = ['AM', 'PM'];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -156,70 +177,58 @@ export default function AddAppointment() {
 
             {/* Form */}
             <View className="space-y-6">
-              {/* Appointment Type Selection */}
+              {/* Doctor Selection */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                  Appointment Type
+                  Select Doctor
                 </Text>
-                <View className="flex-row flex-wrap gap-2">
-                  {appointmentTypes.map((type) => (
-                    <TouchableOpacity
-                      key={type}
-                      onPress={() => setFormData({ ...formData, type })}
-                      className={`px-4 py-2 rounded-full ${
-                        formData.type === type
-                          ? 'bg-[#FF69B4]'
-                          : 'bg-gray-200 dark:bg-gray-700'
-                      }`}
-                    >
-                      <Text
-                        className={`font-medium ${
-                          formData.type === type ? 'text-white' : 'text-gray-700 dark:text-gray-300'
-                        }`}
-                      >
-                        {type}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                <View className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+                  <Picker
+                    selectedValue={formData.doctorId}
+                    onValueChange={handleDoctorSelect}
+                    style={{ color: colors.text }}
+                  >
+                    <Picker.Item label="Select a doctor" value="" />
+                    {doctors.map(doctor => (
+                      <Picker.Item 
+                        key={doctor.id} 
+                        label={doctor.fullName || 'Unknown Doctor'} 
+                        value={doctor.id} 
+                      />
+                    ))}
+                  </Picker>
                 </View>
-              </View>
-
-              {/* Doctor Name Input */}
-              <View>
-                <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                  Doctor Name
-                </Text>
-                <View className="flex-row items-center space-x-2">
-                  <UserIcon size={20} color="#FF69B4" />
-                  <TextInput
-                    value={formData.doctorName}
-                    onChangeText={(text) => setFormData({ ...formData, doctorName: text })}
-                    placeholder="Enter doctor's name"
-                    placeholderTextColor={colors.textSecondary}
-                    className="flex-1 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
-                  />
-                </View>
-                {errors.doctorName && (
-                  <Text className="text-red-500 text-sm mt-1">{errors.doctorName}</Text>
+                {errors.doctorId && (
+                  <Text className="text-red-500 text-sm mt-1">{errors.doctorId}</Text>
                 )}
               </View>
 
-              {/* Specialty Input */}
-              <View>
-                <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                  Specialty
-                </Text>
-                <TextInput
-                  value={formData.specialty}
-                  onChangeText={(text) => setFormData({ ...formData, specialty: text })}
-                  placeholder="Enter doctor's specialty"
-                  placeholderTextColor={colors.textSecondary}
-                  className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
-                />
-                {errors.specialty && (
-                  <Text className="text-red-500 text-sm mt-1">{errors.specialty}</Text>
-                )}
-              </View>
+              {/* Doctor Info (auto-populated) */}
+              {formData.doctorId && (
+                <>
+                  <View>
+                    <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
+                      Specialty
+                    </Text>
+                    <TextInput
+                      value={formData.specialty}
+                      editable={false}
+                      className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                    />
+                  </View>
+
+                  <View>
+                    <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
+                      Location
+                    </Text>
+                    <TextInput
+                      value={formData.location}
+                      editable={false}
+                      className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                    />
+                  </View>
+                </>
+              )}
 
               {/* Date Input */}
               <View>
@@ -241,43 +250,57 @@ export default function AddAppointment() {
                 )}
               </View>
 
-              {/* Time Input */}
+              {/* Time Selection */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
                   Time
                 </Text>
-                <View className="flex-row items-center space-x-2">
-                  <ClockIcon size={20} color="#FF69B4" />
-                  <TextInput
-                    value={formData.time}
-                    onChangeText={(text) => setFormData({ ...formData, time: text })}
-                    placeholder="HH:MM AM/PM"
-                    placeholderTextColor={colors.textSecondary}
-                    className="flex-1 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
-                  />
+                <View className="flex-row space-x-2">
+                  <View className="flex-1 bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+                    <Picker
+                      selectedValue={formData.time.split(':')[0] || '01'}
+                      onValueChange={(hour) => {
+                        const [_, minute, period] = formData.time.split(':');
+                        setFormData({ ...formData, time: `${hour}:${minute || '00'} ${period || 'AM'}` });
+                      }}
+                      style={{ color: colors.text }}
+                    >
+                      {hours.map(hour => (
+                        <Picker.Item key={hour} label={hour} value={hour} />
+                      ))}
+                    </Picker>
+                  </View>
+                  <View className="flex-1 bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+                    <Picker
+                      selectedValue={formData.time.split(':')[1]?.split(' ')[0] || '00'}
+                      onValueChange={(minute) => {
+                        const [hour, _, period] = formData.time.split(':');
+                        setFormData({ ...formData, time: `${hour || '01'}:${minute} ${period || 'AM'}` });
+                      }}
+                      style={{ color: colors.text }}
+                    >
+                      {minutes.map(minute => (
+                        <Picker.Item key={minute} label={minute} value={minute} />
+                      ))}
+                    </Picker>
+                  </View>
+                  <View className="flex-1 bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+                    <Picker
+                      selectedValue={formData.time.split(' ')[1] || 'AM'}
+                      onValueChange={(period) => {
+                        const [time] = formData.time.split(' ');
+                        setFormData({ ...formData, time: `${time} ${period}` });
+                      }}
+                      style={{ color: colors.text }}
+                    >
+                      {periods.map(period => (
+                        <Picker.Item key={period} label={period} value={period} />
+                      ))}
+                    </Picker>
+                  </View>
                 </View>
                 {errors.time && (
                   <Text className="text-red-500 text-sm mt-1">{errors.time}</Text>
-                )}
-              </View>
-
-              {/* Location Input */}
-              <View>
-                <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                  Location
-                </Text>
-                <View className="flex-row items-center space-x-2">
-                  <MapPinIcon size={20} color="#FF69B4" />
-                  <TextInput
-                    value={formData.location}
-                    onChangeText={(text) => setFormData({ ...formData, location: text })}
-                    placeholder="Enter appointment location"
-                    placeholderTextColor={colors.textSecondary}
-                    className="flex-1 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
-                  />
-                </View>
-                {errors.location && (
-                  <Text className="text-red-500 text-sm mt-1">{errors.location}</Text>
                 )}
               </View>
 
