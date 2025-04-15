@@ -1,140 +1,238 @@
-# HealthTek - Your Personal Health Companion
+# HealthTek - Healthcare Management System
 
-HealthTek is a comprehensive health and wellness mobile application designed to help users track, manage, and improve their overall health. The app provides a user-friendly interface with powerful features for health monitoring, data tracking, and emergency assistance.
+<div align="center">
+  <img src="./assets/images/RB.png" alt="HealthTek Logo" width="200"/>
+</div>
 
-## Features
+## Overview
 
-### 1. User Authentication
-- Secure email/password authentication
-- User profile management
-- Personalized welcome experience
+HealthTek is a comprehensive healthcare management system designed to bridge the gap between patients, healthcare providers, and administrators. This mobile application prototype streamlines healthcare services by providing an integrated platform for managing medical appointments, prescriptions, patient records, and emergency services.
 
-### 2. Home Dashboard
-- Daily health insights
-- Quick access to key health metrics
-- Personalized health tips
-- Emergency SOS button for quick access to emergency services
-- Real-time health data tracking
+## Key Features
 
-### 3. Health Monitoring
-- Heart rate tracking
-- Blood pressure monitoring
-- Step counting
-- Health trend analysis
-- Visual data representation
+### For Patients
+- **Multi-language Support**
+  - Available in English, Sesotho, and Afrikaans
+  - Seamless language switching through settings
 
-### 4. Quick Actions
-- Record health data
-- View health analytics
-- Manage appointments
-- Health notifications
-- Emergency assistance
+- **Health Monitoring**
+  - Track vital health metrics
+  - View historical health data and trends
+  - Real-time health analytics
 
-### 5. Profile Management
-- Personal information management
-- Health preferences
-- Privacy settings
-- Theme customization (Light/Dark mode)
+- **Appointment Management**
+  - Schedule appointments with healthcare providers
+  - View upcoming appointments
+  - Receive appointment reminders
+  - Easy rescheduling and cancellation
 
-### 6. Appointment Management
-- Schedule medical appointments
-- View upcoming appointments
-- Appointment reminders
-- Medical history tracking
+- **Medication Management**
+  - View prescribed medications
+  - Order prescription refills
+  - Track medication history
+  - Secure payment processing
 
-### 7. Emergency Features
-- Quick access to emergency services
-- Emergency contact management
-- Location sharing in emergencies
-- Medical information access
+- **Emergency Services**
+  - Quick access to emergency assistance
+  - SOS button for immediate help
+  - Store emergency contact information
 
-### 8. Privacy & Security
-- Secure data storage
-- Privacy settings
-- Data encryption
-- User consent management
+### For Doctors
+- **Patient Management**
+  - Access patient medical histories
+  - View and update patient records
+  - Track patient progress
+  - Manage appointments
 
-## Technical Features
+- **Prescription Management**
+  - Create and manage prescriptions
+  - Set dosage and frequency
+  - Add special instructions
+  - View medication history
 
-### UI/UX
-- Modern, intuitive interface
-- Smooth animations and transitions
-- Responsive design
-- Theme support (Light/Dark mode)
-- Neon pink accent color scheme
+- **Appointment Scheduling**
+  - Manage daily/weekly schedule
+  - View upcoming appointments
+  - Patient consultation notes
+  - Follow-up scheduling
 
-### Navigation
-- Bottom tab navigation
-- Modal screens for quick actions
-- Smooth screen transitions
-- Intuitive navigation flow
+### For Administrators
+- **User Management**
+  - Manage patient accounts
+  - Verify and manage doctor profiles
+  - Control access permissions
 
-### Data Management
-- Real-time data updates
-- Offline data storage
-- Data synchronization
-- Secure data handling
+- **Medication Inventory**
+  - Track medication stock
+  - Manage pricing
+  - Monitor prescription trends
 
-## Getting Started
+- **System Oversight**
+  - Monitor system usage
+  - Generate reports
+  - Maintain security protocols
+
+## Application Screenshots
+
+### Authentication System
+<div style="display: flex; justify-content: space-between;">
+  <div style="flex: 1; margin-right: 10px;">
+    <h4>Patient Registration</h4>
+    <img src="docs/screenshots/signup.png" alt="Patient Registration" width="300"/>
+    <p>Secure patient registration with language selection and essential information collection.</p>
+  </div>
+  <div style="flex: 1; margin-right: 10px;">
+    <h4>Login Screen</h4>
+    <img src="docs/screenshots/login.png" alt="Login Screen" width="300"/>
+    <p>Multi-role login system with social authentication options.</p>
+  </div>
+  <div style="flex: 1;">
+    <h4>Doctor Login</h4>
+    <img src="docs/screenshots/doctor-login.png" alt="Doctor Login" width="300"/>
+    <p>Specialized login portal for healthcare providers.</p>
+  </div>
+</div>
+
+### Patient Interface
+<div style="display: flex; justify-content: space-between;">
+  <div style="flex: 1; margin-right: 10px;">
+    <h4>Patient Dashboard</h4>
+    <img src="docs/screenshots/patient-dashboard.png" alt="Patient Dashboard" width="300"/>
+    <p>Comprehensive health overview with quick action buttons.</p>
+  </div>
+  <div style="flex: 1; margin-right: 10px;">
+    <h4>Health Analytics</h4>
+    <img src="docs/screenshots/health-analytics.png" alt="Health Analytics" width="300"/>
+    <p>Detailed health metrics with historical trends.</p>
+  </div>
+  <div style="flex: 1;">
+    <h4>Medicine Store</h4>
+    <img src="docs/screenshots/medicine-store.png" alt="Medicine Store" width="300"/>
+    <p>Easy access to prescription medications with secure checkout.</p>
+  </div>
+</div>
+
+### Doctor Interface
+<div style="display: flex; justify-content: space-between;">
+  <div style="flex: 1; margin-right: 10px;">
+    <h4>Doctor Dashboard</h4>
+    <img src="docs/screenshots/doctor-dashboard.png" alt="Doctor Dashboard" width="300"/>
+    <p>Efficient practice management interface.</p>
+  </div>
+  <div style="flex: 1; margin-right: 10px;">
+    <h4>Patient Management</h4>
+    <img src="docs/screenshots/patient-management.png" alt="Patient Management" width="300"/>
+    <p>Comprehensive patient record management system.</p>
+  </div>
+  <div style="flex: 1;">
+    <h4>Prescription Creation</h4>
+    <img src="docs/screenshots/prescription.png" alt="Prescription Creation" width="300"/>
+    <p>Digital prescription creation with medication details.</p>
+  </div>
+</div>
+
+### Administrative Tools
+<div style="display: flex; justify-content: space-between;">
+  <div style="flex: 1; margin-right: 10px;">
+    <h4>Admin Portal</h4>
+    <img src="docs/screenshots/admin-portal.png" alt="Admin Portal" width="300"/>
+    <p>Secure administrative access portal.</p>
+  </div>
+  <div style="flex: 1; margin-right: 10px;">
+    <h4>Admin Dashboard</h4>
+    <img src="docs/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="300"/>
+    <p>Centralized system management interface.</p>
+  </div>
+  <div style="flex: 1;">
+    <h4>Medication Management</h4>
+    <img src="docs/screenshots/medication-management.png" alt="Medication Management" width="300"/>
+    <p>Comprehensive medication inventory system.</p>
+  </div>
+</div>
+
+## Technical Requirements
 
 ### Prerequisites
-- Node.js
-- npm or yarn
-- React Native development environment
+- Node.js (v14.0.0 or higher)
+- React Native (v0.70.0 or higher)
+- Expo CLI
 - Firebase account
 
-### Installation
-1. Clone the repository
-```bash
-git clone [repository-url]
-```
+### Development Environment Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/HealthTek.git
+   cd HealthTek
+   ```
 
-2. Install dependencies
-```bash
-npm install
-# or
-yarn install
-```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-3. Set up environment variables
-Create a `.env` file in the root directory with the following variables:
-```
-FIREBASE_API_KEY=your_api_key
-FIREBASE_AUTH_DOMAIN=your_auth_domain
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_STORAGE_BUCKET=your_storage_bucket
-FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-FIREBASE_APP_ID=your_app_id
-```
+3. Configure Firebase:
+   - Create a Firebase project
+   - Enable Authentication and Firestore
+   - Add your Firebase configuration to `config/firebase.js`
 
-4. Run the app
-```bash
-npm start
-# or
-yarn start
-```
+4. Start the development server:
+   ```bash
+   expo start
+   ```
 
 ## Project Structure
-
 ```
 HealthTek/
-├── assets/
-│   └── images/
-├── components/
-├── config/
-├── context/
-├── navigation/
-├── screens/
-├── services/
-└── utils/
+├── assets/            # Images, fonts, and other static assets
+├── components/        # Reusable UI components
+├── config/           # Configuration files (Firebase, etc.)
+├── context/          # React Context providers
+├── navigation/       # Navigation configuration
+├── screens/          # Application screens
+├── services/         # API and service integrations
+├── translations/     # Internationalization files
+└── utils/           # Utility functions and helpers
 ```
 
+## Security Features
+- End-to-end encryption for sensitive data
+- Role-based access control
+- Secure authentication system
+- Regular security audits
+- HIPAA compliance measures
+
+## Development Status
+
+This application is currently a prototype and is under active development. While core functionalities are implemented, some features may be limited or in testing phase. We are continuously working on improvements and new features.
+
 ## Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+
+We welcome contributions to the HealthTek project. Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
+
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Support
-For support, please contact [support-email] or create an issue in the repository.
+
+For support, please:
+- Open an issue in the GitHub repository
+- Email: support@healthtek.com
+- Visit our documentation website
+
+## Acknowledgments
+
+- Healthcare professionals who provided domain expertise
+- Beta testers who provided valuable feedback
+- Open source community for various tools and libraries used
+
+---
+
+**Note**: This is a prototype version of the HealthTek application. Some features may be limited or in development.
 
