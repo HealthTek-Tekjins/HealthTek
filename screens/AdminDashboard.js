@@ -32,14 +32,14 @@ export default function AdminDashboard({ navigation }) {
             <TouchableOpacity
               onPress={() => navigation.navigate('PatientManagement')}
               style={{
-                width: 56,
-                height: 56,
-                backgroundColor: colors.card,
-                borderRadius: 8,
+                width: 80,
+                height: 80,
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                borderRadius: 16,
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginHorizontal: 12,
-                shadowColor: '#000',
+                shadowColor: '#FF69B4',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.1,
                 shadowRadius: 4,
@@ -47,21 +47,21 @@ export default function AdminDashboard({ navigation }) {
               }}
               accessibilityLabel="Patient Management"
             >
-              <MaterialCommunityIcons name="account-group" size={24} color={colors.primary} />
+              <MaterialCommunityIcons name="account-group" size={32} color="#FF69B4" />
             </TouchableOpacity>
 
             {/* Doctor Management Button */}
             <TouchableOpacity
               onPress={() => navigation.navigate('DoctorManagement')}
               style={{
-                width: 56,
-                height: 56,
-                backgroundColor: colors.card,
-                borderRadius: 8,
+                width: 80,
+                height: 80,
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                borderRadius: 16,
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginHorizontal: 12,
-                shadowColor: '#000',
+                shadowColor: '#FF69B4',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.1,
                 shadowRadius: 4,
@@ -69,21 +69,21 @@ export default function AdminDashboard({ navigation }) {
               }}
               accessibilityLabel="Doctor Management"
             >
-              <MaterialCommunityIcons name="doctor" size={24} color={colors.primary} />
+              <MaterialCommunityIcons name="doctor" size={32} color="#FF69B4" />
             </TouchableOpacity>
 
             {/* Medication Management Button */}
             <TouchableOpacity
               onPress={() => navigation.navigate('MedicationManagement')}
               style={{
-                width: 56,
-                height: 56,
-                backgroundColor: colors.card,
-                borderRadius: 8,
+                width: 80,
+                height: 80,
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                borderRadius: 16,
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginHorizontal: 12,
-                shadowColor: '#000',
+                shadowColor: '#FF69B4',
                 shadowOffset: { width: 0, height: 2 },
                 shadowOpacity: 0.1,
                 shadowRadius: 4,
@@ -91,7 +91,7 @@ export default function AdminDashboard({ navigation }) {
               }}
               accessibilityLabel="Medication Management"
             >
-              <MaterialCommunityIcons name="pill" size={24} color={colors.primary} />
+              <MaterialCommunityIcons name="pill" size={32} color="#FF69B4" />
             </TouchableOpacity>
           </View>
 
@@ -99,7 +99,7 @@ export default function AdminDashboard({ navigation }) {
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 16 }}>
             <Text
               style={{
-                width: 56,
+                width: 80,
                 textAlign: 'center',
                 fontSize: 12,
                 fontWeight: '500',
@@ -111,7 +111,7 @@ export default function AdminDashboard({ navigation }) {
             </Text>
             <Text
               style={{
-                width: 56,
+                width: 80,
                 textAlign: 'center',
                 fontSize: 12,
                 fontWeight: '500',
@@ -123,7 +123,7 @@ export default function AdminDashboard({ navigation }) {
             </Text>
             <Text
               style={{
-                width: 56,
+                width: 80,
                 textAlign: 'center',
                 fontSize: 12,
                 fontWeight: '500',

@@ -175,40 +175,56 @@ export default function LoginScreen() {
             </Text>
 
             <View style={{ width: '85%', marginBottom: 20 }}>
-              <TextInput
-                className="rounded-xl p-4"
-                style={{ 
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
-                placeholder="Email"
-                placeholderTextColor={colors.textSecondary}
-                value={email}
-                onChangeText={(value) => setEmail(value)}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                editable={!loading}
-              />
+              <View style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center',
+                backgroundColor: colors.card,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: colors.border,
+                paddingHorizontal: 12,
+              }}>
+                <MaterialCommunityIcons name="email" size={20} color="#FF69B4" style={{ marginRight: 8 }} />
+                <TextInput
+                  className="flex-1 py-4"
+                  style={{ 
+                    color: colors.text,
+                  }}
+                  placeholder="Email"
+                  placeholderTextColor={colors.textSecondary}
+                  value={email}
+                  onChangeText={(value) => setEmail(value)}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  editable={!loading}
+                />
+              </View>
             </View>
 
             <View style={{ width: '85%', marginBottom: 20 }}>
-              <TextInput
-                className="rounded-xl p-4"
-                style={{ 
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
-                secureTextEntry
-                placeholder="Password"
-                placeholderTextColor={colors.textSecondary}
-                value={password}
-                onChangeText={(value) => setPassword(value)}
-                editable={!loading}
-              />
+              <View style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center',
+                backgroundColor: colors.card,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: colors.border,
+                paddingHorizontal: 12,
+              }}>
+                <MaterialCommunityIcons name="lock" size={20} color="#FF69B4" style={{ marginRight: 8 }} />
+                <TextInput
+                  className="flex-1 py-4"
+                  style={{ 
+                    color: colors.text,
+                  }}
+                  secureTextEntry
+                  placeholder="Password"
+                  placeholderTextColor={colors.textSecondary}
+                  value={password}
+                  onChangeText={(value) => setPassword(value)}
+                  editable={!loading}
+                />
+              </View>
             </View>
 
             <TouchableOpacity

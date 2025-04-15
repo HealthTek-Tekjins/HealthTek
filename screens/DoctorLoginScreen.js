@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, TextInput, Alert, ActivityIndicator } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { auth, db } from '../config/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -78,16 +78,25 @@ const DoctorLoginScreen = () => {
               >
                 Email
               </Text>
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Enter your email"
-                placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-                style={{ color: colors.text }}
-              />
+              <View style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center',
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                borderRadius: 12,
+                paddingHorizontal: 12,
+              }}>
+                <MaterialCommunityIcons name="email" size={20} color="#FF69B4" style={{ marginRight: 8 }} />
+                <TextInput
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Enter your email"
+                  placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  className="flex-1 py-3"
+                  style={{ color: colors.text }}
+                />
+              </View>
             </View>
 
             <View>
@@ -97,15 +106,24 @@ const DoctorLoginScreen = () => {
               >
                 Password
               </Text>
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Enter your password"
-                placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
-                secureTextEntry
-                className={`rounded-xl px-4 py-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
-                style={{ color: colors.text }}
-              />
+              <View style={{ 
+                flexDirection: 'row', 
+                alignItems: 'center',
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                borderRadius: 12,
+                paddingHorizontal: 12,
+              }}>
+                <MaterialCommunityIcons name="lock" size={20} color="#FF69B4" style={{ marginRight: 8 }} />
+                <TextInput
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="Enter your password"
+                  placeholderTextColor={isDarkMode ? '#B0B0B0' : '#666666'}
+                  secureTextEntry
+                  className="flex-1 py-3"
+                  style={{ color: colors.text }}
+                />
+              </View>
             </View>
 
             <TouchableOpacity
