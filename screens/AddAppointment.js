@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   CalendarIcon,
   ArrowLeftIcon,
@@ -21,6 +22,7 @@ import { Picker } from '@react-native-picker/picker';
 export default function AddAppointment() {
   const navigation = useNavigation();
   const { colors, isDarkMode } = useTheme();
+  const { translations } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [doctors, setDoctors] = useState([]);
   const [formData, setFormData] = useState({
@@ -147,6 +149,26 @@ export default function AddAppointment() {
   const minutes = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
   const periods = ['AM', 'PM'];
 
+  const pickerContainerStyle = {
+    height: 140,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 4,
+  };
+
+  const pickerStyle = {
+    height: '100%',
+    color: colors.text,
+    backgroundColor: 'transparent',
+  };
+
+  const pickerItemStyle = {
+    fontSize: 16,
+    fontFamily: 'System',
+    color: colors.text,
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <LinearGradient
@@ -171,7 +193,7 @@ export default function AddAppointment() {
                 <ArrowLeftIcon size={24} color="#FF69B4" />
               </TouchableOpacity>
               <Text style={{ color: colors.text }} className="text-2xl font-bold">
-                Schedule Appointment
+                {translations.scheduleAppointment}
               </Text>
             </View>
 
@@ -180,20 +202,26 @@ export default function AddAppointment() {
               {/* Doctor Selection */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                  Select Doctor
+                  {translations.selectDoctor}
                 </Text>
-                <View className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+                <View style={[pickerContainerStyle, { height: 180, backgroundColor: isDarkMode ? colors.card : '#ffffff' }]}>
                   <Picker
                     selectedValue={formData.doctorId}
                     onValueChange={handleDoctorSelect}
-                    style={{ color: colors.text }}
+                    style={[pickerStyle, { color: colors.text }]}
+                    itemStyle={[pickerItemStyle, { color: colors.text }]}
                   >
-                    <Picker.Item label="Select a doctor" value="" />
+                    <Picker.Item 
+                      label={translations.selectADoctor} 
+                      value="" 
+                      color={colors.textSecondary}
+                    />
                     {doctors.map(doctor => (
                       <Picker.Item 
                         key={doctor.id} 
-                        label={doctor.fullName || 'Unknown Doctor'} 
-                        value={doctor.id} 
+                        label={doctor.fullName || translations.unknownDoctor} 
+                        value={doctor.id}
+                        color={colors.text}
                       />
                     ))}
                   </Picker>
@@ -208,23 +236,31 @@ export default function AddAppointment() {
                 <>
                   <View>
                     <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                      Specialty
+                      {translations.specialty}
                     </Text>
                     <TextInput
                       value={formData.specialty}
                       editable={false}
-                      className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                      style={{ 
+                        color: colors.text,
+                        backgroundColor: isDarkMode ? colors.card : '#ffffff',
+                      }}
+                      className="rounded-xl px-4 py-3"
                     />
                   </View>
 
                   <View>
                     <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                      Location
+                      {translations.location}
                     </Text>
                     <TextInput
                       value={formData.location}
                       editable={false}
-                      className="bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                      style={{ 
+                        color: colors.text,
+                        backgroundColor: isDarkMode ? colors.card : '#ffffff',
+                      }}
+                      className="rounded-xl px-4 py-3"
                     />
                   </View>
                 </>
@@ -233,7 +269,7 @@ export default function AddAppointment() {
               {/* Date Input */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                  Date
+                  {translations.date}
                 </Text>
                 <View className="flex-row items-center space-x-2">
                   <CalendarIcon size={20} color="#FF69B4" />
@@ -242,7 +278,12 @@ export default function AddAppointment() {
                     onChangeText={(text) => setFormData({ ...formData, date: text })}
                     placeholder="YYYY-MM-DD"
                     placeholderTextColor={colors.textSecondary}
-                    className="flex-1 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                    style={{ 
+                      color: colors.text,
+                      backgroundColor: isDarkMode ? colors.card : '#ffffff',
+                      flex: 1,
+                    }}
+                    className="rounded-xl px-4 py-3"
                   />
                 </View>
                 {errors.date && (
@@ -253,48 +294,71 @@ export default function AddAppointment() {
               {/* Time Selection */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                  Time
+                  {translations.time}
                 </Text>
                 <View className="flex-row space-x-2">
-                  <View className="flex-1 bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+                  {/* Hours Picker */}
+                  <View style={[pickerContainerStyle, { flex: 1, backgroundColor: isDarkMode ? colors.card : '#ffffff' }]}>
                     <Picker
                       selectedValue={formData.time.split(':')[0] || '01'}
                       onValueChange={(hour) => {
                         const [_, minute, period] = formData.time.split(':');
                         setFormData({ ...formData, time: `${hour}:${minute || '00'} ${period || 'AM'}` });
                       }}
-                      style={{ color: colors.text }}
+                      style={[pickerStyle, { color: colors.text }]}
+                      itemStyle={[pickerItemStyle, { fontSize: 15, color: colors.text }]}
                     >
                       {hours.map(hour => (
-                        <Picker.Item key={hour} label={hour} value={hour} />
+                        <Picker.Item 
+                          key={hour} 
+                          label={hour} 
+                          value={hour}
+                          color={colors.text}
+                        />
                       ))}
                     </Picker>
                   </View>
-                  <View className="flex-1 bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+
+                  {/* Minutes Picker */}
+                  <View style={[pickerContainerStyle, { flex: 1, backgroundColor: isDarkMode ? colors.card : '#ffffff' }]}>
                     <Picker
                       selectedValue={formData.time.split(':')[1]?.split(' ')[0] || '00'}
                       onValueChange={(minute) => {
                         const [hour, _, period] = formData.time.split(':');
                         setFormData({ ...formData, time: `${hour || '01'}:${minute} ${period || 'AM'}` });
                       }}
-                      style={{ color: colors.text }}
+                      style={[pickerStyle, { color: colors.text }]}
+                      itemStyle={[pickerItemStyle, { fontSize: 15, color: colors.text }]}
                     >
                       {minutes.map(minute => (
-                        <Picker.Item key={minute} label={minute} value={minute} />
+                        <Picker.Item 
+                          key={minute} 
+                          label={minute} 
+                          value={minute}
+                          color={colors.text}
+                        />
                       ))}
                     </Picker>
                   </View>
-                  <View className="flex-1 bg-white dark:bg-gray-800 rounded-xl overflow-hidden">
+
+                  {/* AM/PM Picker */}
+                  <View style={[pickerContainerStyle, { flex: 1, backgroundColor: isDarkMode ? colors.card : '#ffffff' }]}>
                     <Picker
                       selectedValue={formData.time.split(' ')[1] || 'AM'}
                       onValueChange={(period) => {
                         const [time] = formData.time.split(' ');
                         setFormData({ ...formData, time: `${time} ${period}` });
                       }}
-                      style={{ color: colors.text }}
+                      style={[pickerStyle, { color: colors.text }]}
+                      itemStyle={[pickerItemStyle, { fontSize: 15, color: colors.text }]}
                     >
                       {periods.map(period => (
-                        <Picker.Item key={period} label={period} value={period} />
+                        <Picker.Item 
+                          key={period} 
+                          label={period} 
+                          value={period}
+                          color={colors.text}
+                        />
                       ))}
                     </Picker>
                   </View>
@@ -307,18 +371,23 @@ export default function AddAppointment() {
               {/* Notes Input */}
               <View>
                 <Text style={{ color: colors.text }} className="text-lg font-semibold mb-3">
-                  Notes (Optional)
+                  {translations.notes} ({translations.optional})
                 </Text>
                 <View className="flex-row items-start space-x-2">
                   <DocumentTextIcon size={20} color="#FF69B4" style={{ marginTop: 12 }} />
                   <TextInput
                     value={formData.notes}
                     onChangeText={(text) => setFormData({ ...formData, notes: text })}
-                    placeholder="Add any additional notes..."
+                    placeholder={translations.addNotes}
                     placeholderTextColor={colors.textSecondary}
+                    style={{ 
+                      color: colors.text,
+                      backgroundColor: isDarkMode ? colors.card : '#ffffff',
+                      flex: 1,
+                    }}
                     multiline
                     numberOfLines={4}
-                    className="flex-1 bg-white dark:bg-gray-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                    className="rounded-xl px-4 py-3"
                   />
                 </View>
               </View>
@@ -339,7 +408,7 @@ export default function AddAppointment() {
                 }}
               >
                 <Text className="text-white text-center font-semibold text-lg">
-                  {loading ? 'Scheduling...' : 'Schedule Appointment'}
+                  {loading ? translations.scheduling : translations.scheduleAppointment}
                 </Text>
               </TouchableOpacity>
             </View>

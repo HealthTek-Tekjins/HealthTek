@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { translations } from '../translations';
 
 const LanguageContext = createContext();
 
@@ -36,8 +37,14 @@ export const LanguageProvider = ({ children }) => {
     loadLanguage();
   }, []);
 
+  const value = {
+    currentLanguage,
+    changeLanguage,
+    translations: translations[currentLanguage] || translations.en
+  };
+
   return (
-    <LanguageContext.Provider value={{ currentLanguage, changeLanguage }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

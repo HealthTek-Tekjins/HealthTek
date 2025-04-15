@@ -73,12 +73,15 @@ export default function AppointmentScreen() {
       const querySnapshot = await getDocs(q);
       console.log('Query completed. Number of appointments:', querySnapshot.size);
       
-      const appointmentsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      // Filter appointments for the current user
+      const appointmentsData = querySnapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        .filter(appointment => appointment.patientId === user.uid);
 
-      console.log('Appointments data:', appointmentsData);
+      console.log('Filtered appointments for user:', appointmentsData.length);
 
       // Sort appointments by date
       appointmentsData.sort((a, b) => new Date(a.date) - new Date(b.date));

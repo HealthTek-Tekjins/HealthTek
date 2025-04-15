@@ -143,7 +143,31 @@ export const translations = {
     editProfile: 'Edit Profile',
     addHealthData: 'Add Health Data',
     addAppointment: 'Add Appointment',
-    doctorDashboard: 'Doctor Dashboard'
+    doctorDashboard: 'Doctor Dashboard',
+
+    // Appointment Screen
+    scheduleAppointment: 'Schedule Appointment',
+    selectDoctor: 'Select Doctor',
+    selectADoctor: 'Select a doctor',
+    unknownDoctor: 'Unknown Doctor',
+    specialty: 'Specialty',
+    location: 'Location',
+    date: 'Date',
+    time: 'Time',
+    notes: 'Notes',
+    optional: 'Optional',
+    addNotes: 'Add any additional notes...',
+    scheduling: 'Scheduling...',
+    locationNotAvailable: 'Location not available',
+    appointments: 'Appointments',
+    loadingAppointments: 'Loading appointments...',
+    failedToLoadAppointments: 'Failed to load appointments. Please try again.',
+    deleteAppointment: 'Delete Appointment',
+    deleteAppointmentConfirm: 'Are you sure you want to delete this appointment?',
+    appointmentDeleted: 'Appointment deleted successfully',
+    deleteError: 'Failed to delete appointment',
+    tryAgain: 'Try Again',
+    success: 'Success'
   },
   st: {
     // Auth Screens
@@ -289,7 +313,31 @@ export const translations = {
     editProfile: 'Fetola Profaele',
     addHealthData: 'Kenya Data ea Bophelo',
     addAppointment: 'Kenya Kopano',
-    doctorDashboard: 'Tafole ea Taolo ea Ngaka'
+    doctorDashboard: 'Tafole ea Taolo ea Ngaka',
+
+    // Appointment Screen
+    scheduleAppointment: 'Beha Kopano',
+    selectDoctor: 'Khetha Ngaka',
+    selectADoctor: 'Khetha ngaka',
+    unknownDoctor: 'Ngaka e sa Tsejoeng',
+    specialty: 'Bokhoni',
+    location: 'Sebaka',
+    date: 'Letsatsi',
+    time: 'Nako',
+    notes: 'Lintlha',
+    optional: 'Ka boikhethelo',
+    addNotes: 'Kenya lintlha life kapa life tse ling...',
+    scheduling: 'Ea beha...',
+    locationNotAvailable: 'Sebaka ha se fumanehe',
+    appointments: 'Likopano',
+    loadingAppointments: 'Ho kenya likopano...',
+    failedToLoadAppointments: 'Ho hlolehile ho kenya likopano. Ka kopo leka hape.',
+    deleteAppointment: 'Hlakola Kopano',
+    deleteAppointmentConfirm: 'Na u tiile u batla ho hlakola kopano ee?',
+    appointmentDeleted: 'Kopano e hlakotswe ka katleho',
+    deleteError: 'Ho hlolehile ho hlakola kopano',
+    tryAgain: 'Leka Hape',
+    success: 'Katleho'
   },
   af: {
     // Auth Screens
@@ -435,6 +483,30 @@ export const translations = {
     editProfile: 'Wysig Profiel',
     addHealthData: 'Voeg Gesondheidsdata By',
     addAppointment: 'Voeg Afspraak By',
-    doctorDashboard: 'Dokter Kontroleskerm'
+    doctorDashboard: 'Dokter Kontroleskerm',
+
+    // Appointment Screen
+    scheduleAppointment: 'Skeduleer Afspraak',
+    selectDoctor: 'Kies Dokter',
+    selectADoctor: 'Kies \'n dokter',
+    unknownDoctor: 'Onbekende Dokter',
+    specialty: 'Spesialiteit',
+    location: 'Ligging',
+    date: 'Datum',
+    time: 'Tyd',
+    notes: 'Notas',
+    optional: 'Opsioneel',
+    addNotes: 'Voeg enige addisionele notas by...',
+    scheduling: 'Besig om te skeduleer...',
+    locationNotAvailable: 'Ligging nie beskikbaar nie',
+    appointments: 'Afsprake',
+    loadingAppointments: 'Laai afsprake...',
+    failedToLoadAppointments: 'Kon nie afsprake laai nie. Probeer asseblief weer.',
+    deleteAppointment: 'Verwyder Afspraak',
+    deleteAppointmentConfirm: 'Is jy seker jy wil hierdie afspraak verwyder?',
+    appointmentDeleted: 'Afspraak suksesvol verwyder',
+    deleteError: 'Kon nie afspraak verwyder nie',
+    tryAgain: 'Probeer Weer',
+    success: 'Sukses'
   }
 }; 
