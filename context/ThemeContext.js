@@ -36,10 +36,10 @@ export const ThemeProvider = ({ children }) => {
     toggleTheme,
     colors: isDarkMode ? {
       background: '#1A1A1A',
-      card: '#2C2C2C',
+      card: '#4F4F4F',
       text: '#FFFFFF',
-      textSecondary: '#A0A0A0',
-      primary: '#0A84FF',
+      textSecondary: '#8F8E8E',
+      primary: '#FF87B7',
       border: '#3A3A3A',
       error: '#FF453A',
       success: '#32D74B',
@@ -47,11 +47,44 @@ export const ThemeProvider = ({ children }) => {
       background: '#FFFFFF',
       card: '#F5F5F7',
       text: '#000000',
-      textSecondary: '#666666',
-      primary: '#007AFF',
+      textSecondary: '#8F8E8E',
+      primary: '#FF87B7',
       border: '#E5E5EA',
       error: '#FF3B30',
       success: '#34C759',
+    },
+    fonts: {
+      regular: 'Montserrat',
+      medium: 'Montserrat-Medium',
+      semiBold: 'Montserrat-SemiBold',
+      bold: 'Montserrat-Bold',
+    },
+    textStyles: {
+      h1: {
+        fontSize: 32,
+        fontFamily: 'Montserrat-Bold',
+        color: '#4F4F4F',
+      },
+      h2: {
+        fontSize: 24,
+        fontFamily: 'Montserrat-SemiBold',
+        color: '#4F4F4F',
+      },
+      h3: {
+        fontSize: 20,
+        fontFamily: 'Montserrat-SemiBold',
+        color: '#4F4F4F',
+      },
+      body: {
+        fontSize: 16,
+        fontFamily: 'Montserrat',
+        color: '#4F4F4F',
+      },
+      caption: {
+        fontSize: 14,
+        fontFamily: 'Montserrat',
+        color: '#4F4F4F',
+      },
     }
   };
 
