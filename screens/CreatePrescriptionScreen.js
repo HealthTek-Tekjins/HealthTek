@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
-  Modal
+  Modal,
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -24,6 +25,7 @@ const CreatePrescriptionScreen = ({ navigation }) => {
     specialInstructions: '',
     diagnosis: ''
   });
+  const [errors, setErrors] = useState({});
 
   // Hardcoded patients list (same as in Dashboard)
   const patients = [
@@ -55,10 +57,58 @@ const CreatePrescriptionScreen = ({ navigation }) => {
     setShowPatientModal(false);
   };
 
+  // Validation rules
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Required field validation
+    if (!selectedPatient) {
+      newErrors.patient = 'Please select a patient';
+    }
+    
+    if (!prescription.diagnosis.trim()) {
+      newErrors.diagnosis = 'Diagnosis is required';
+    }
+    
+    if (!prescription.medication.trim()) {
+      newErrors.medication = 'Medication name is required';
+    }
+    
+    if (!prescription.dosage.trim()) {
+      newErrors.dosage = 'Dosage is required';
+    } else if (!/^\d+(\.\d+)?\s*(mg|ml|g|tablets?|capsules?|drops?)$/i.test(prescription.dosage)) {
+      newErrors.dosage = 'Invalid dosage format (e.g., 500 mg, 2 tablets)';
+    }
+    
+    if (!prescription.frequency.trim()) {
+      newErrors.frequency = 'Frequency is required';
+    } else if (!/^(\d+(-\d+)?\s*(times?|x)\s*(daily|per\s*day)|every\s*\d+\s*(hours?|hrs?))$/i.test(prescription.frequency)) {
+      newErrors.frequency = 'Invalid frequency format (e.g., 3 times daily, every 8 hours)';
+    }
+    
+    if (!prescription.duration.trim()) {
+      newErrors.duration = 'Duration is required';
+    } else if (!/^\d+\s*(days?|weeks?|months?)$/i.test(prescription.duration)) {
+      newErrors.duration = 'Invalid duration format (e.g., 7 days, 2 weeks)';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleCreatePrescription = () => {
-    // Here you would typically save the prescription
-    console.log('Prescription created:', { patient: selectedPatient, ...prescription });
-    navigation.goBack();
+    if (validateForm()) {
+      // Here you would typically save the prescription
+      console.log('Prescription created:', { patient: selectedPatient, ...prescription });
+      navigation.goBack();
+    } else {
+      // Show error alert if validation fails
+      Alert.alert(
+        'Validation Error',
+        'Please correct the errors in the form before proceeding.',
+        [{ text: 'OK' }]
+      );
+    }
   };
 
   const renderInput = (label, value, key, multiline = false) => (
@@ -71,14 +121,24 @@ const CreatePrescriptionScreen = ({ navigation }) => {
             backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
             color: colors.text,
             height: multiline ? 100 : 50,
-            textAlignVertical: multiline ? 'top' : 'center'
+            textAlignVertical: multiline ? 'top' : 'center',
+            borderColor: errors[key] ? '#FF0000' : 'rgba(255,105,180,0.2)',
           }
         ]}
         value={value}
-        onChangeText={(text) => setPrescription(prev => ({ ...prev, [key]: text }))}
+        onChangeText={(text) => {
+          setPrescription(prev => ({ ...prev, [key]: text }));
+          // Clear error when user starts typing
+          if (errors[key]) {
+            setErrors(prev => ({ ...prev, [key]: null }));
+          }
+        }}
         placeholderTextColor={colors.textSecondary}
         multiline={multiline}
       />
+      {errors[key] && (
+        <Text style={styles.errorText}>{errors[key]}</Text>
+      )}
     </View>
   );
 
@@ -97,36 +157,45 @@ const CreatePrescriptionScreen = ({ navigation }) => {
         </View>
 
         {/* Patient Selection */}
-        <TouchableOpacity
-          onPress={() => setShowPatientModal(true)}
-          style={[styles.patientSelector, {
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
-          }]}
-        >
-          <MaterialCommunityIcons name="account" size={24} color="#FF69B4" />
-          <Text style={[styles.patientSelectorText, { color: colors.text }]}>
-            {selectedPatient ? selectedPatient.name : 'Select Patient'}
-          </Text>
-          <MaterialCommunityIcons name="chevron-down" size={24} color="#FF69B4" />
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity
+            onPress={() => setShowPatientModal(true)}
+            style={[
+              styles.patientSelector,
+              {
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                borderColor: errors.patient ? '#FF0000' : 'rgba(255,105,180,0.2)',
+                borderWidth: 1,
+              }
+            ]}
+          >
+            <MaterialCommunityIcons name="account" size={24} color="#FF69B4" />
+            <Text style={[styles.patientSelectorText, { color: colors.text }]}>
+              {selectedPatient ? selectedPatient.name : 'Select Patient'}
+            </Text>
+            <MaterialCommunityIcons name="chevron-down" size={24} color="#FF69B4" />
+          </TouchableOpacity>
+          {errors.patient && (
+            <Text style={styles.errorText}>{errors.patient}</Text>
+          )}
+        </View>
 
-        {selectedPatient && (
-          <View style={styles.prescriptionForm}>
-            {renderInput('Diagnosis', prescription.diagnosis, 'diagnosis', true)}
-            {renderInput('Medication', prescription.medication, 'medication')}
-            {renderInput('Dosage', prescription.dosage, 'dosage')}
-            {renderInput('Frequency', prescription.frequency, 'frequency')}
-            {renderInput('Duration', prescription.duration, 'duration')}
-            {renderInput('Special Instructions', prescription.specialInstructions, 'specialInstructions', true)}
+        {/* Rest of the form */}
+        <View style={styles.prescriptionForm}>
+          {renderInput('Diagnosis', prescription.diagnosis, 'diagnosis', true)}
+          {renderInput('Medication', prescription.medication, 'medication')}
+          {renderInput('Dosage (e.g., 500 mg, 2 tablets)', prescription.dosage, 'dosage')}
+          {renderInput('Frequency (e.g., 3 times daily, every 8 hours)', prescription.frequency, 'frequency')}
+          {renderInput('Duration (e.g., 7 days, 2 weeks)', prescription.duration, 'duration')}
+          {renderInput('Special Instructions', prescription.specialInstructions, 'specialInstructions', true)}
 
-            <TouchableOpacity
-              style={[styles.createButton, { opacity: 0.9 }]}
-              onPress={handleCreatePrescription}
-            >
-              <Text style={styles.createButtonText}>Create Prescription</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          <TouchableOpacity
+            style={[styles.createButton, { opacity: 0.9 }]}
+            onPress={handleCreatePrescription}
+          >
+            <Text style={styles.createButtonText}>Create Prescription</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       {/* Patient Selection Modal */}
@@ -216,7 +285,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,105,180,0.2)',
   },
   createButton: {
     backgroundColor: '#FF69B4',
@@ -267,6 +335,12 @@ const styles = StyleSheet.create({
   },
   patientInfo: {
     fontSize: 14,
+  },
+  errorText: {
+    color: '#FF0000',
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
   },
 });
 

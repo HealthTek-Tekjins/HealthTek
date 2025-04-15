@@ -1,22 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
   ScrollView,
   StyleSheet,
-  Dimensions
+  Dimensions,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  TextInput
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { height } = Dimensions.get('window');
 
 const ManagePatientsScreen = () => {
   const { colors, isDarkMode } = useTheme();
-
-  // Hardcoded patient data
-  const patients = [
+  const [patients, setPatients] = useState([
     {
       id: '1',
       name: 'John Doe',
@@ -68,7 +71,186 @@ const ManagePatientsScreen = () => {
         { date: '2024-06-15', time: '02:00 PM', type: 'Lab Test', doctor: 'Dr. Anderson' }
       ]
     }
-  ];
+  ]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [editedPatient, setEditedPatient] = useState(null);
+
+  const handleEdit = (patient) => {
+    setSelectedPatient(patient);
+    setEditedPatient({ ...patient });
+    setShowEditModal(true);
+  };
+
+  const handleDelete = (patientId) => {
+    Alert.alert(
+      'Delete Patient',
+      'Are you sure you want to delete this patient? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            setPatients(currentPatients => 
+              currentPatients.filter(p => p.id !== patientId)
+            );
+          }
+        }
+      ]
+    );
+  };
+
+  const handleSaveEdit = () => {
+    if (!editedPatient) return;
+
+    setPatients(currentPatients =>
+      currentPatients.map(p =>
+        p.id === editedPatient.id ? editedPatient : p
+      )
+    );
+    setShowEditModal(false);
+    setSelectedPatient(null);
+    setEditedPatient(null);
+  };
+
+  const renderEditModal = () => (
+    <Modal
+      visible={showEditModal}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setShowEditModal(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Edit Patient</Text>
+            <TouchableOpacity onPress={() => setShowEditModal(false)}>
+              <MaterialCommunityIcons name="close" size={24} color="#FF69B4" />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalScroll}>
+            {editedPatient && (
+              <View style={styles.editForm}>
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Name</Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                      color: colors.text,
+                      borderColor: 'rgba(255,105,180,0.2)'
+                    }]}
+                    value={editedPatient.name}
+                    onChangeText={(text) => setEditedPatient(prev => ({ ...prev, name: text }))}
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Age</Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                      color: colors.text,
+                      borderColor: 'rgba(255,105,180,0.2)'
+                    }]}
+                    value={editedPatient.age.toString()}
+                    onChangeText={(text) => setEditedPatient(prev => ({ ...prev, age: parseInt(text) || 0 }))}
+                    keyboardType="numeric"
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Gender</Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                      color: colors.text,
+                      borderColor: 'rgba(255,105,180,0.2)'
+                    }]}
+                    value={editedPatient.gender}
+                    onChangeText={(text) => setEditedPatient(prev => ({ ...prev, gender: text }))}
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Blood Type</Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                      color: colors.text,
+                      borderColor: 'rgba(255,105,180,0.2)'
+                    }]}
+                    value={editedPatient.bloodType}
+                    onChangeText={(text) => setEditedPatient(prev => ({ ...prev, bloodType: text }))}
+                    placeholderTextColor={colors.textSecondary}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Allergies</Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                      color: colors.text,
+                      borderColor: 'rgba(255,105,180,0.2)'
+                    }]}
+                    value={editedPatient.allergies}
+                    onChangeText={(text) => setEditedPatient(prev => ({ ...prev, allergies: text }))}
+                    placeholderTextColor={colors.textSecondary}
+                    multiline
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Conditions</Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                      color: colors.text,
+                      borderColor: 'rgba(255,105,180,0.2)'
+                    }]}
+                    value={editedPatient.conditions}
+                    onChangeText={(text) => setEditedPatient(prev => ({ ...prev, conditions: text }))}
+                    placeholderTextColor={colors.textSecondary}
+                    multiline
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Medications</Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
+                      color: colors.text,
+                      borderColor: 'rgba(255,105,180,0.2)'
+                    }]}
+                    value={editedPatient.medications}
+                    onChangeText={(text) => setEditedPatient(prev => ({ ...prev, medications: text }))}
+                    placeholderTextColor={colors.textSecondary}
+                    multiline
+                  />
+                </View>
+              </View>
+            )}
+          </ScrollView>
+
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={handleSaveEdit}
+          >
+            <Text style={styles.saveButtonText}>Save Changes</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
 
   const renderPatientCard = (patient) => (
     <View 
@@ -77,13 +259,29 @@ const ManagePatientsScreen = () => {
         backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'white',
       }]}
     >
-      <View style={styles.header}>
-        <Text style={[styles.name, { color: colors.text }]}>
-          {patient.name}
-        </Text>
-        <Text style={[styles.subInfo, { color: isDarkMode ? '#B0B0B0' : '#666666' }]}>
-          Age: {patient.age} | {patient.gender} | {patient.bloodType}
-        </Text>
+      <View style={styles.cardHeader}>
+        <View style={styles.headerLeft}>
+          <Text style={[styles.name, { color: colors.text }]}>
+            {patient.name}
+          </Text>
+          <Text style={[styles.subInfo, { color: isDarkMode ? '#B0B0B0' : '#666666' }]}>
+            Age: {patient.age} | {patient.gender} | {patient.bloodType}
+          </Text>
+        </View>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            onPress={() => handleEdit(patient)}
+            style={[styles.actionButton, { backgroundColor: colors.background }]}
+          >
+            <MaterialCommunityIcons name="pencil" size={20} color="#FF69B4" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => handleDelete(patient.id)}
+            style={[styles.actionButton, { backgroundColor: colors.background }]}
+          >
+            <MaterialCommunityIcons name="trash-can" size={20} color="#FF69B4" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.infoSection}>
@@ -174,6 +372,8 @@ const ManagePatientsScreen = () => {
         >
           {patients.map(renderPatientCard)}
         </ScrollView>
+
+        {renderEditModal()}
       </LinearGradient>
     </SafeAreaView>
   );
@@ -211,8 +411,22 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  header: {
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 16,
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  actionButton: {
+    padding: 8,
+    borderRadius: 8,
   },
   name: {
     fontSize: 20,
@@ -261,6 +475,59 @@ const styles = StyleSheet.create({
   },
   appointmentInfo: {
     fontSize: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '90%',
+    maxHeight: '80%',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalScroll: {
+    maxHeight: height * 0.5,
+  },
+  editForm: {
+    gap: 16,
+  },
+  inputGroup: {
+    gap: 8,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  input: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  saveButton: {
+    backgroundColor: '#FF69B4',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
