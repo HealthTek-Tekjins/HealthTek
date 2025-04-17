@@ -203,7 +203,7 @@ export default function RegisterScreen() {
                 )}
               </View>
 
-              {/* Register Button */}
+              {/* Register Button */} 
               <TouchableOpacity
                 onPress={handleRegister}
                 disabled={loading}

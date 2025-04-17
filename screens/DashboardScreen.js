@@ -25,7 +25,7 @@ export default function Dashboard({ navigation }) {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
           {/* TJ Logo */}
           <Image
-            source={require('../assets/images/RB.png')}
+            source={require('../assets/images/UL.png')}
             style={{ width: 100, height: 150, resizeMode: 'contain', borderRadius: 20 }}
             accessibilityLabel="HealthTek Logo"
           />

@@ -59,7 +59,7 @@ export default function WelcomeScreen() {
             className="items-center"
           >
             <Image
-              source={require('../assets/images/RB.png')}
+              source={require('../assets/images/UL.png')}
               style={{
                 width: width * 0.7,
                 height: width * 0.7,
